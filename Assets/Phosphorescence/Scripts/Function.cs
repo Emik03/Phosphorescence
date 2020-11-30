@@ -1,5 +1,6 @@
 ﻿using PhosphorescenceExtensions;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
@@ -20,12 +21,48 @@ internal static class Function
         return k % 1 == 0 ? k : Mathf.Pow(2f, -10f * k) * Mathf.Sin((k - 0.1f) * (2f * Mathf.PI) / 0.4f) + 1f;
     }
 
+    internal static void OnInteractArray(KMSelectable[] selectables, Func<int, KMSelectable.OnInteractHandler> method)
+    {
+        for (int i = 0; i < selectables.Length; i++)
+        {
+            int j = i;
+            selectables[i].OnInteract += method(j);
+        }
+    }
+
     internal static bool[] RandomBools(int length)
     {
         bool[] array = new bool[length];
         for (int i = 0; i < array.Length; i++)
             array[i] = Rnd.Range(0, 1f) > 0.5;
         return array;
+    }
+
+    internal static string[] GetAllAnswers(string solution, int index)
+    {
+        List<string>[] answers = new List<string>[solution.Length];
+
+        for (int i = 0; i < answers.Length; i++)
+            answers[i] = new List<string>();
+
+        for (int i = 0; i < solution.Length; i++)
+        {
+            foreach (string button in Enum.GetNames(typeof(ButtonType)))
+            {
+                if (solution[i] == button[(index + i) % button.Length].ToString().ToLowerInvariant().ToCharArray()[0])
+                {
+                    string nextAnswer = button == "Black" ? "K" : button[0].ToString();
+
+                    if (i == 0)
+                        answers[i].Add(nextAnswer);
+                    else
+                        foreach (string answer in answers[i - 1])
+                            answers[i].Add(answer + nextAnswer);
+                }
+            }
+        }
+
+        return answers[answers.Length - 1].ToArray();
     }
 
     internal static Color GetColor(ButtonType buttonType)

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using PhosphorescenceExtensions;
+using System;
+using System.Collections;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
@@ -15,6 +17,8 @@ internal class Animate
     private readonly Init _init;
     private readonly Render _render;
 
+    private bool isPushingButton;
+
     internal IEnumerator Run()
     {
         _init.isAnimated = true;
@@ -22,13 +26,14 @@ internal class Animate
         Function.PlaySound("start", _pho);
 
         float solved = _pho.Info.GetSolvedModuleNames().Count,
-              solvable = _pho.Info.GetSolvableModuleNames().Count;
+              solvable = _pho.Info.GetSolvableModuleNames().Count,
+              deltaSolved = solved + 1 == solvable ? 1 : solved / solvable;
 
-        float additionalTime = solved + 1 == solvable ? 1 : solved / solvable;
+        int currentTime = Init.streamDelay + 300 + (int)(deltaSolved * 300);
 
-        Render.amountOfTime = 200 + (int)(200 * additionalTime);
+        Render.currentTime = Mathf.Max(Mathf.Min(currentTime, 5999), 10);
 
-        for (int i = 0; i < Render.amountOfTime; i += (int)Mathf.Ceil((float)Render.amountOfTime / 100))
+        for (int i = 0; i < Render.currentTime; i += (int)Mathf.Ceil((float)Render.currentTime / 100))
         {
             _render.UpdateDisplay(i);
             yield return new WaitForFixedUpdate();
@@ -39,6 +44,7 @@ internal class Animate
 
         _init.solution = Words.ValidWords[_init.index].PickRandom();
         Debug.LogFormat("[Phosphorescence #{0}]: The expected answer is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
+        Debug.LogFormat("[Phosphorescence #{0}]: All possible answers are: {1}.", _init.moduleId, Function.GetAllAnswers(_init.solution, _init.index).Join(", "));
         _pho.StartCoroutine(_render.Countdown());
 
         _init.isCountingDown = true;
@@ -47,14 +53,20 @@ internal class Animate
 
     internal IEnumerator PressButton(Transform transform)
     {
+        isPushingButton = true;
+        yield return new WaitForFixedUpdate();
+        isPushingButton = false;
+
         float k = 1;
 
-        while (k > 0)
+        while (k > 0 && !isPushingButton)
         {
             transform.localPosition = new Vector3(transform.localPosition.x, -2 * Function.ElasticIn(k), transform.localPosition.z);
             k -= 0.0078125f;
             yield return new WaitForSecondsRealtime(0.01f);
         }
+
+        transform.localPosition = new Vector3(transform.localPosition.x, 0, transform.localPosition.z);
     }
 
     internal IEnumerator IntoSubmit()
@@ -106,10 +118,32 @@ internal class Animate
         if (_init.submission == _init.solution)
             _pho.StartCoroutine(_init.Solve());
         else
-            _pho.StartCoroutine(_init.Strike());
+            _pho.StartCoroutine(_init.BufferStrike());
 
         _init.isAnimated = false;
         _init.isInSubmission = false;
         _init.isTouched = false;
+    }
+
+    internal IEnumerator PostSolve(PhosphorescenceScript pho, int[] displayStates)
+    {
+        while (true)
+        {
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 20; j++)
+                {
+                    for (int k = 0; k < displayStates.Length; k++)
+                    {
+                        if ((i % 4 == 0 && (k % 7) + (k / 7) == j) ||
+                            (i % 4 == 3 && (k % 7) + (7 - (k / 7)) == j) ||
+                            (i % 4 == 1 && 7 - (k % 7) + (k / 7) == j) ||
+                            (i % 4 == 2 && 7 - (k % 7) + (7 - (k / 7)) == j))
+                            displayStates[k] = ++displayStates[k] % 8;
+                        pho.Tiles[k].material.color = Function.GetColor((ButtonType)displayStates[k]);
+                    }
+
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+        }
     }
 }

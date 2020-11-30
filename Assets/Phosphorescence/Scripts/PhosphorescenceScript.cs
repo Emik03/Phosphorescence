@@ -5,18 +5,15 @@ using UnityEngine;
 /// </summary>
 public class PhosphorescenceScript : MonoBehaviour
 {
-    public class ModSettingsJSON
-    {
-        public bool OneTapHolds;
-        public int StreamDelay;
-    }
-
     public KMAudio Audio;
     public KMBombModule Module;
     public KMBombInfo Info;
+    public KMColorblindMode Colorblind;
+    public KMHighlightable[] MarkerHighlightables;
+    public KMModSettings ModSettings;
     public KMSelectable Color, Number;
-    public KMSelectable[] Buttons;
-    public Renderer[] Tiles, ButtonRenderers;
+    public KMSelectable[] Buttons, Markers;
+    public Renderer[] Tiles, ButtonRenderers, MarkerRenderers;
     public TextMesh[] Text;
     public Transform Panel, Screen;
 

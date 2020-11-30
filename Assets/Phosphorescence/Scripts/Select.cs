@@ -10,12 +10,13 @@ internal class Select
         _pho = pho;
         _init = init;
         _render = render;
-        _animate = new Animate(pho, init, render);
+        animate = new Animate(pho, init, render);
     }
+
+    internal readonly Animate animate;
 
     internal ButtonType[] buttons;
 
-    private readonly Animate _animate;
     private readonly Init _init;
     private readonly PhosphorescenceScript _pho;
     private readonly Render _render;
@@ -24,7 +25,7 @@ internal class Select
     {
         return delegate ()
         {
-            PressProductionValue(_pho.Number.transform, 2);
+            PressFeedback(_pho.Number.transform);
 
             if (_init.isSolved || _init.isAnimated)
             {
@@ -33,10 +34,10 @@ internal class Select
             }
 
             if (!_init.isCountingDown)
-                _pho.StartCoroutine(_animate.Run());
+                _pho.StartCoroutine(animate.Run());
             else if (!_init.isAnimated)
                 if (_init.isInSubmission)
-                    _pho.StartCoroutine(_animate.Submit());
+                    _pho.StartCoroutine(animate.Submit());
                 else
                     IntoSubmit();
             return false;
@@ -47,7 +48,7 @@ internal class Select
     {
         return delegate ()
         {
-            PressProductionValue(_pho.Number.transform, 2);
+            PressFeedback(_pho.Number.transform);
 
             if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission || _init.submission.Length >= 6)
             {
@@ -59,48 +60,79 @@ internal class Select
             int currentIndex = _init.index + _init.submission.Length;
             _init.submission += currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant();
             Function.PlaySound("submit" + _init.submission.Length, _pho);
-            _pho.StartCoroutine(_animate.PressButton(_pho.ButtonRenderers[btn].transform));
+            _pho.StartCoroutine(animate.PressButton(_pho.ButtonRenderers[btn].transform));
 
             return false;
         };
     }
 
-    internal KMSelectable.OnInteractHandler ColorPanelPress()
+    internal KMSelectable.OnInteractHandler MarkerPress(int btn)
     {
         return delegate ()
         {
-            PressProductionValue(_pho.Color.transform, 3);
+            PressFeedback(_pho.Number.transform);
 
-            if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
+            if (_init.isSolved || _init.isAnimated || !_init.isCountingDown || _init.isInSubmission)
             {
                 Function.PlaySound("invalidButton", _pho);
                 return false;
             }
 
-            Function.PlaySound("screenPress", _pho);
-            _pho.StartCoroutine(_render.UpdateCubes());
+            _pho.MarkerRenderers[btn].transform.localPosition = new Vector3(_pho.MarkerRenderers[btn].transform.localPosition.x, _pho.MarkerRenderers[btn].transform.localPosition.y * -1, _pho.MarkerRenderers[btn].transform.localPosition.z);
             return false;
         };
     }
 
-    internal Action ColorPanelRelease()
+    internal KMSelectable.OnInteractHandler ColorPress()
     {
         return delegate ()
         {
-            PressProductionValue(_pho.Color.transform, 1);
+            PressFeedback(_pho.Color.transform, 2);
 
             if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
             {
                 Function.PlaySound("invalidButton", _pho);
-                return;
+                return true;
             }
 
-            Function.PlaySound("screenRelease", _pho);
-            _init.isTouched = false;
-
-            for (int i = 0; i < _pho.Tiles.Length; i++)
-                _pho.Tiles[i].material.color = Color.black;
+            Function.PlaySound("screenPress", _pho);
+            ResetMarkers();
+            _pho.StartCoroutine(_render.UpdateCubes());
+            return true;
         };
+    }
+
+    private void ResetMarkers()
+    {
+        foreach (var renderer in _pho.MarkerRenderers)
+            renderer.transform.localPosition = new Vector3(renderer.transform.localPosition.x, -0.5f, renderer.transform.localPosition.z);
+    }
+
+    internal Action ColorRelease()
+    {
+        return delegate () { StopSequence(); };
+    }
+
+    internal KMSelectable.OnCancelHandler ColorCancel()
+    {
+        return delegate () { StopSequence(); return true; };
+    }
+
+    internal void StopSequence()
+    {
+        PressFeedback(_pho.Color.transform, 0.5f);
+
+        if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
+        {
+            Function.PlaySound("invalidButton", _pho);
+            return;
+        }
+
+        Function.PlaySound("screenRelease", _pho);
+        _init.isTouched = false;
+
+        for (int i = 0; i < _pho.Tiles.Length; i++)
+            _pho.Tiles[i].material.color = Color.black;
     }
 
     private void IntoSubmit()
@@ -115,10 +147,10 @@ internal class Select
         for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
             _pho.ButtonRenderers[i].material.color = Function.GetColor(buttons[i]);
 
-        _pho.StartCoroutine(_animate.IntoSubmit());
+        _pho.StartCoroutine(animate.IntoSubmit());
     }
 
-    private void PressProductionValue(Transform transform, int i)
+    private void PressFeedback(Transform transform, float i = 1)
     {
         _pho.Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
         _pho.Number.AddInteractionPunch(i);

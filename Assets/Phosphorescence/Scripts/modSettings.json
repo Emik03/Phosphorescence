@@ -1,0 +1,7 @@
+{
+    "DisableMarkers": false,
+    "HowToUse0": "If you are playing on VR, set this to true to prevent problems with KMSelectables. With it disabled, the screen must be held as well.",
+
+    "StreamDelay": 0,
+    "HowToUse2": "Mainly for TwitchPlays, set this to the amount of seconds of stream delay. 1 second of stream delay equates to +15 additional seconds on the timer."
+}

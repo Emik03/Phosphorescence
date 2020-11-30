@@ -12,7 +12,8 @@ internal class Render
         _init = init;
     }
 
-    internal static int amountOfTime;
+    internal bool colorblind;
+    internal static int currentTime;
     internal int currentIndex;
     internal float burn;
 
@@ -32,18 +33,19 @@ internal class Render
         _init.isCountingDown = true;
         Function.PlaySound("voice_go", _pho);
 
-        for (_time = amountOfTime; _time >= 1; _time--)
+        for (_time = currentTime; _time >= 1; _time--)
         {
             if (!_init.isCountingDown)
                 yield break;
 
-            Function.CountSound(_time, _pho, _time == amountOfTime);
+            Function.CountSound(_time, _pho, _time == currentTime);
             UpdateDisplay(_time);
 
             yield return new WaitForSecondsRealtime(1);
         }
 
-        _init.Strike();
+        UpdateDisplay(0);
+        _pho.StartCoroutine(_init.BufferStrike());
     }
 
     internal IEnumerator UpdateCubes()
@@ -70,20 +72,22 @@ internal class Render
     {
         if (t <= 0)
         {
-            _pho.Text[0].text = _pho.Text[1].text = _pho.Text[2].text = _pho.Text[3].text = _pho.Text[4].text = string.Empty;
+            foreach (var text in _pho.Text)
+                text.text = string.Empty;
             return;
         }
 
-        _pho.Text[0].text = (t / 60).ToString();
-        _pho.Text[1].text = (t % 60 / 10).ToString();
-        _pho.Text[2].text = (t % 10).ToString();
-        _pho.Text[3].text = _pho.Text[4].text = ".";
+        _pho.Text[0].text = (t / 600).ToString();
+        _pho.Text[1].text = (t / 60 % 10).ToString();
+        _pho.Text[2].text = (t % 60 / 10).ToString();
+        _pho.Text[3].text = (t % 10).ToString();
+        _pho.Text[4].text = _pho.Text[4].text = ".";
 
-        byte strain = (byte)((float)t / amountOfTime * 98);
-        int max = (int)Math.Pow(2, int.Parse(_pho.Text[2].text));
+        byte strain = (byte)((float)t / currentTime * 98);
+        int currentPow = (int)Math.Pow(2, int.Parse(_pho.Text[3].text));
 
         foreach (var text in _pho.Text)
-            text.color = _init.index / max % 2 == 0 ? new Color32(98, strain, strain, 255) : new Color32(196, (byte)(strain * 2), (byte)(strain * 2), 255);
+            text.color = _init.index / currentPow % 2 == 0 ? new Color32(98, strain, strain, 255) : new Color32(196, (byte)(strain * 2), (byte)(strain * 2), 255);
     }
 
     private void NewSequence()
@@ -131,7 +135,7 @@ internal class Render
     {
         Color32 colorA = Color.black, colorB;
         do colorB = _allColors.PickRandom();
-        while (Array.IndexOf(_allColors, colorA) == Array.IndexOf(_allColors, colorB));
+        while (Array.IndexOf(_allColors, colorA) == Array.IndexOf(_allColors, colorB) || Array.IndexOf(_allColors, colorB) == _allColors.Length - 1);
 
         Color32[] colors = new Color32[49];
         for (int i = 0; i < colors.Length; i++)
