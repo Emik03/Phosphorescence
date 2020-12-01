@@ -2,7 +2,7 @@
 using System.Linq;
 
 /// <summary>
-/// Contains static informatino of all the possible words, and methods to generate code, in the plan of new potential words.
+/// Contains static information of all the possible words, and methods to generate code, in the plan of new potential words.
 /// </summary>
 internal static class Words
 {

@@ -256,10 +256,10 @@ internal class Animate
                     for (int k = 0; k < displayStates.Length; k++)
                     {
                         // Should the screen change color right now?
-                        if ((i % 4 == 0 && (k % 7) + (k / 7) == j) ||
-                            (i % 4 == 3 && (k % 7) + (7 - (k / 7)) == j) ||
-                            (i % 4 == 1 && 7 - (k % 7) + (k / 7) == j) ||
-                            (i % 4 == 2 && 7 - (k % 7) + (7 - (k / 7)) == j))
+                        if ((i % 4 == 0 && (k % 7) + (k / 7) == j) || // Top-left
+                            (i % 4 == 3 && (k % 7) + (7 - (k / 7)) == j) || // Bottom-left
+                            (i % 4 == 1 && 7 - (k % 7) + (k / 7) == j) || // Top-right
+                            (i % 4 == 2 && 7 - (k % 7) + (7 - (k / 7)) == j)) // Bottom-right
                             displayStates[k] = ++displayStates[k] % 8;
                         pho.Tiles[k].material.color = Function.GetColor((ButtonType)displayStates[k]);
                     }

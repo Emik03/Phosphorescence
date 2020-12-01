@@ -214,6 +214,7 @@ internal class Select
         _init.isInSubmission = true;
 
         Function.PlaySound("startSubmit", _pho);
+        ResetMarkers();
         ShuffleButtons();
 
         _pho.StartCoroutine(animate.EnterSubmit());

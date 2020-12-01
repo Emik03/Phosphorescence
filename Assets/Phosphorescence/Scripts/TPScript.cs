@@ -24,7 +24,7 @@ public class TPScript : MonoBehaviour
 	{
 		{ 'k', ButtonType.Black },
 		{ 'r', ButtonType.Red },
-		{ 'r', ButtonType.Green },
+		{ 'g', ButtonType.Green },
 		{ 'b', ButtonType.Blue },
 		{ 'c', ButtonType.Cyan },
 		{ 'm', ButtonType.Magenta },
