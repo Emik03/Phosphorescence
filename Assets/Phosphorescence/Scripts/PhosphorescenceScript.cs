@@ -15,6 +15,7 @@ public class PhosphorescenceScript : MonoBehaviour
     public KMSelectable[] Buttons, Markers;
     public Renderer[] Tiles, ButtonRenderers, MarkerRenderers;
     public TextMesh[] ScreenText, ButtonText;
+    public Texture ColorblindTexture;
     public Transform Panel, Screen;
 
     internal Init init;
@@ -22,6 +23,7 @@ public class PhosphorescenceScript : MonoBehaviour
     private void Awake()
     {
         Module.OnActivate += (init = new Init(this)).Activate;
+        // Uncomment line below to fiddle with the words array.
         //Words.ReturnAllWords();
     }
 }

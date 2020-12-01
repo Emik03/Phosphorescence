@@ -1,17 +1,67 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Contains static informatino of all the possible words, and methods to generate code, in the plan of new potential words.
+/// </summary>
 internal static class Words
 {
+    /// <summary>
+    /// This determines how long the sequences are.
+    /// </summary>
 	internal const int MaxLength = 8;
 
+    /// <summary>
+    /// Contains the characters submitted for all indexes, 0 to 419.
+    /// </summary>
 	private static readonly string[] _validChars = { "rgbmycwb", "erlaeyhl", "deuglaia", "reeelntc", "enbnocek", "dgltwywb", "rruayahl", "eeemenia", "debalctc", "rnlglyek", "egueoawb", "drenwnhl", "rebtycia", "eelaeytc", "dnumlaek", "rgealnwb", "erbgochl", "delewyia", "reunyatc", "enetenek", "dgbalcwb", "rrlmlyhl", "eeuaoaia", "deegwntc", "rnbeycek", "eglneywb", "drutlahl", "reealnia", "eebmoctc", "dnlawyek", "rgugyawb", "ereeenhl", "debnlcia", "reltlytc", "enuaoaek", "dgemwnwb", "rrbaychl", "eelgeyia", "deuelatc", "rnenlnek", "egbtocwb", "drlawyhl", "reumyaia", "eeeaentc", "dnbglcek", "rglelywb", "erunoahl", "deetwnia", "rebayctc", "enlmeyek", "dgualawb", "rreglnhl", "eebeocia", "delnwytc", "rnutyaek", "egeaenwb", "drbmlchl", "relalyia", "eeugoatc", "dneewnek", "rgbnycwb", "erlteyhl", "deualaia", "reemlntc", "enbaocek", "dglgwywb", "rrueyahl", "eeenenia", "debtlctc", "rnlalyek", "egumoawb", "dreawnhl", "rebgycia", "eeleeytc", "dnunlaek", "rgetlnwb", "erbaochl", "delmwyia", "reuayatc", "enegenek", "dgbelcwb", "rrlnlyhl", "eeutoaia", "deeawntc", "rnbmycek", "eglaeywb", "druglahl", "reeelnia", "eebnoctc", "dnltwyek", "rguayawb", "eremenhl", "debalcia", "relglytc", "enueoaek", "dgenwnwb", "rrbtychl", "eelaeyia", "deumlatc", "rnealnek", "egbgocwb", "drlewyhl", "reunyaia", "eeetentc", "dnbalcek", "rglmlywb", "eruaoahl", "deegwnia", "rebeyctc", "enlneyek", "dgutlawb", "rrealnhl", "eebmocia", "delawytc", "rnugyaek", "egeeenwb", "drbnlchl", "reltlyia", "eeuaoatc", "dnemwnek", "rgbaycwb", "erlgeyhl", "deuelaia", "reenlntc", "enbtocek", "dglawywb", "rrumyahl", "eeeaenia", "debglctc", "rnlelyek", "egunoawb", "dretwnhl", "rebaycia", "eelmeytc", "dnualaek", "rgeglnwb", "erbeochl", "delnwyia", "reutyatc", "eneaenek", "dgbmlcwb", "rrlalyhl", "eeugoaia", "deeewntc", "rnbnycek", "eglteywb", "drualahl", "reemlnia", "eebaoctc", "dnlgwyek", "rgueyawb", "erenenhl", "debtlcia", "relalytc", "enumoaek", "dgeawnwb", "rrbgychl", "eeleeyia", "deunlatc", "rnetlnek", "egbaocwb", "drlmwyhl", "reuayaia", "eeegentc", "dnbelcek", "rglnlywb", "erutoahl", "deeawnia", "rebmyctc", "enlaeyek", "dguglawb", "rreelnhl", "eebnocia", "deltwytc", "rnuayaek", "egemenwb", "drbalchl", "relglyia", "eeueoatc", "dnenwnek", "rgbtycwb", "erlaeyhl", "deumlaia", "reealntc", "enbgocek", "dglewywb", "rrunyahl", "eeetenia", "debalctc", "rnlmlyek", "eguaoawb", "dregwnhl", "rebeycia", "eelneytc", "dnutlaek", "rgealnwb", "erbmochl", "delawyia", "reugyatc", "eneeenek", "dgbnlcwb", "rrltlyhl", "eeuaoaia", "deemwntc", "rnbaycek", "eglgeywb", "druelahl", "reenlnia", "eebtoctc", "dnlawyek", "rgumyawb", "ereaenhl", "debglcia", "relelytc", "enunoaek", "dgetwnwb", "rrbaychl", "eelmeyia", "deualatc", "rneglnek", "egbeocwb", "drlnwyhl", "reutyaia", "eeeaentc", "dnbmlcek", "rglalywb", "erugoahl", "deeewnia", "rebnyctc", "enlteyek", "dgualawb", "rremlnhl", "eebaocia", "delgwytc", "rnueyaek", "egenenwb", "drbtlchl", "relalyia", "eeumoatc", "dneawnek", "rgbgycwb", "erleeyhl", "deunlaia", "reetlntc", "enbaocek", "dglmwywb", "rruayahl", "eeegenia", "debelctc", "rnlnlyek", "egutoawb", "dreawnhl", "rebmycia", "eelaeytc", "dnuglaek", "rgeelnwb", "erbnochl", "deltwyia", "reuayatc", "enemenek", "dgbalcwb", "rrlglyhl", "eeueoaia", "deenwntc", "rnbtycek", "eglaeywb", "drumlahl", "reealnia", "eebgoctc", "dnlewyek", "rgunyawb", "eretenhl", "debalcia", "relmlytc", "enuaoaek", "dgegwnwb", "rrbeychl", "eelneyia", "deutlatc", "rnealnek", "egbmocwb", "drlawyhl", "reugyaia", "eeeeentc", "dnbnlcek", "rgltlywb", "eruaoahl", "deemwnia", "rebayctc", "enlgeyek", "dguelawb", "rrenlnhl", "eebtocia", "delawytc", "rnumyaek", "egeaenwb", "drbglchl", "relelyia", "eeunoatc", "dnetwnek", "rgbaycwb", "erlmeyhl", "deualaia", "reeglntc", "enbeocek", "dglnwywb", "rrutyahl", "eeeaenia", "debmlctc", "rnlalyek", "egugoawb", "dreewnhl", "rebnycia", "eelteytc", "dnualaek", "rgemlnwb", "erbaochl", "delgwyia", "reueyatc", "enenenek", "dgbtlcwb", "rrlalyhl", "eeumoaia", "deeawntc", "rnbgycek", "egleeywb", "drunlahl", "reetlnia", "eebaoctc", "dnlmwyek", "rguayawb", "eregenhl", "debelcia", "relnlytc", "enutoaek", "dgeawnwb", "rrbmychl", "eelaeyia", "deuglatc", "rneelnek", "egbnocwb", "drltwyhl", "reuayaia", "eeementc", "dnbalcek", "rglglywb", "erueoahl", "deenwnia", "rebtyctc", "enlaeyek", "dgumlawb", "rrealnhl", "eebgocia", "delewytc", "rnunyaek", "egetenwb", "drbalchl", "relmlyia", "eeuaoatc", "dnegwnek", "rgbeycwb", "erlneyhl", "deutlaia", "reealntc", "enbmocek", "dglawywb", "rrugyahl", "eeeeenia", "debnlctc", "rnltlyek", "eguaoawb", "dremwnhl", "rebaycia", "eelgeytc", "dnuelaek", "rgenlnwb", "erbtochl", "delawyia", "reumyatc", "eneaenek", "dgbglcwb", "rrlelyhl", "eeunoaia", "deetwntc", "rnbaycek", "eglmeywb", "drualahl", "reeglnia", "eebeoctc", "dnlnwyek", "rgutyawb", "ereaenhl", "debmlcia", "relalytc", "enugoaek", "dgeewnwb", "rrbnychl", "eelteyia", "deualatc", "rnemlnek", "egbaocwb", "drlgwyhl", "reueyaia", "eeenentc", "dnbtlcek", "rglalywb", "erumoahl", "deeawnia", "rebgyctc", "enleeyek", "dgunlawb", "rretlnhl", "eebaocia", "delmwytc", "rnuayaek", "egegenwb", "drbelchl", "relnlyia", "eeutoatc", "dneawnek" };
 
+    /// <summary>
+    /// Returns all the words that are valid.
+    /// </summary>
+    /// <returns></returns>
+	internal static string ReturnAllWords()
+    {
+        // This is simply the directory of a large word list of strictly nouns.
+        string[] lines = System.IO.File.ReadAllLines(@"D:\nounlist.txt");
+        string output = string.Empty;
+
+        // Tests for all offsets in _validChars.
+        for (int offset = 0; offset < _validChars.Length; offset++)
+        {
+            List<string> validLines = new List<string>();
+
+            for (int iWord = 0; iWord < lines.Length; iWord++)
+            {
+                if (IsValidWord(lines[iWord], offset))
+                    validLines.Add(lines[iWord]);
+            }
+
+            // Append a new line where we join all of the valid words in 1 index.
+            output += "\t\tnew string[] { \"" + validLines.Join("\", \"") + "\" },\n";
+        }
+
+        // Log all of the results.
+        UnityEngine.Debug.Log(output);
+        UnityEngine.Debug.Log(ReturnLongestWords());
+        UnityEngine.Debug.Log(ReturnDistinctCount());
+
+        return output;
+    }
+
+    /// <summary>
+    /// Tests if the word is valid, both in length, and its characters.
+    /// </summary>
+    /// <param name="line">The string to test.</param>
+    /// <param name="offset">The starting index for _validChars</param>
+    /// <returns></returns>
 	private static bool IsValidWord(string line, int offset)
     {
-		if (line.Length < 1 || line.Length > 6)
+        // This requires words to be 1 to 6 letters long.
+		if (line.Length < 1 || line.Length > MaxLength - 2)
 			return false;
 
+        // This requires words to contain only the letters provided in the current index + amount of characters before it in _validChars.
 		for (int i = 0; i < line.Length; i++)
 		{
 			if (!_validChars[(offset + i) % _validChars.Length].Contains(line[i].ToString()))
@@ -21,31 +71,10 @@ internal static class Words
 		return true;
 	}
 
-	internal static string ReturnAllWords()
-	{
-		string[] lines = System.IO.File.ReadAllLines(@"D:\nounlist.txt");
-		string output = string.Empty;
-
-		for (int offset = 0; offset < _validChars.Length; offset++)
-		{
-			List<string> validLines = new List<string>();
-
-			for (int iWord = 0; iWord < lines.Length; iWord++)
-			{
-				if (IsValidWord(lines[iWord], offset))
-					validLines.Add(lines[iWord]);
-			}
-
-			output += "\t\tnew string[] { \"" + validLines.Join("\", \"") + "\" },\n";
-		}
-
-		UnityEngine.Debug.Log(output);
-		UnityEngine.Debug.Log(ReturnLongestWords());
-		UnityEngine.Debug.Log(ReturnDistinctCount());
-
-		return output;
-	}
-
+    /// <summary>
+    /// Returns all of the longest words in ValidWords.
+    /// </summary>
+    /// <returns>Returns the longest string in ValidWords, if multiple exist, it will separate each one by commas.</returns>
 	internal static string ReturnLongestWords()
     {
 		List<string> longestWord = new List<string>() { string.Empty };
@@ -65,11 +94,19 @@ internal static class Words
 		return longestWord.Distinct().Join(", ");
 	}
 
+    /// <summary>
+    /// Returns the amount of unique words, flattening the ValidWords array.
+    /// </summary>
+    /// <returns>The amount of unique entries in ValidWords.</returns>
     internal static int ReturnDistinctCount()
     {
 		return ValidWords.SelectMany(a => a).ToArray().Distinct().Count();
     }
 
+    /// <summary>
+    /// Contains all words. Indexes represent the same indexes in _validChars.
+    /// This means that "ad" (index 1) is possible from "erlaeyhl" -> "deuglaia" (index 1-2).
+    /// </summary>
     public static readonly string[][] ValidWords = new string[][]
 	{
 		new string[] { "bag", "bail", "bait", "ball", "ballet", "ballot", "bean", "bear", "beat", "bed", "bee", "beer", "beet", "bell", "belt", "black", "blank", "blue", "bra", "brace", "bran", "brick", "brink", "cage", "call", "cell", "cello", "chalet", "chalk", "check", "cheek", "chick", "chin", "chino", "chuck", "churn", "clan", "clank", "clerk", "click", "client", "clue", "crack", "crane", "cranky", "crate", "creek", "cygnet", "gain", "gale", "galley", "gear", "gel", "glee", "glen", "glue", "glut", "grace", "gran", "granny", "green", "grin", "grit", "magnet", "mail", "main", "male", "mall", "mallet", "meal", "mean", "meat", "med", "meet", "rag", "rage", "rail", "rain", "real", "rear", "red", "regret", "rye", "wad", "wage", "wait", "wall", "wallet", "wear", "well", "whack", "whale", "white", "wreck", "wren", "year", "yellow" },
