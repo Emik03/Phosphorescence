@@ -10,7 +10,7 @@ internal class Select
         _pho = pho;
         _init = init;
         _render = render;
-        animate = new Animate(pho, init, render);
+        animate = new Animate(pho, init, this, render);
     }
 
     internal readonly Animate animate;
@@ -50,18 +50,25 @@ internal class Select
         {
             PressFeedback(_pho.Number.transform);
 
-            if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission || _init.submission.Length >= 6)
+            if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission)
             {
                 Function.PlaySound("invalidButton", _pho);
                 return false;
             }
 
-            string currentSubmit = buttons[btn].ToString();
-            int currentIndex = _init.index + _init.submission.Length;
-            _init.submission += currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant();
-            Function.PlaySound("submit" + _init.submission.Length, _pho);
-            _pho.StartCoroutine(animate.PressButton(_pho.ButtonRenderers[btn].transform));
+            else if (_init.submission.Length < 6)
+            {
+                string currentSubmit = buttons[btn].ToString();
+                int currentIndex = _init.index + _init.submission.Length;
 
+                _init.submission += currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant();
+                _pho.StartCoroutine(animate.PressButton(_pho.ButtonRenderers[btn].transform));
+
+                Function.PlaySound("submit" + _init.submission.Length, _pho);
+                return false;
+            }
+
+            _pho.StartCoroutine(animate.ResetButtons());
             return false;
         };
     }
@@ -70,7 +77,7 @@ internal class Select
     {
         return delegate ()
         {
-            PressFeedback(_pho.Number.transform);
+            PressFeedback(_pho.Number.transform, 0.1f);
 
             if (_init.isSolved || _init.isAnimated || !_init.isCountingDown || _init.isInSubmission)
             {
@@ -79,6 +86,7 @@ internal class Select
             }
 
             _pho.MarkerRenderers[btn].transform.localPosition = new Vector3(_pho.MarkerRenderers[btn].transform.localPosition.x, _pho.MarkerRenderers[btn].transform.localPosition.y * -1, _pho.MarkerRenderers[btn].transform.localPosition.z);
+            Function.PlaySound(_pho.MarkerRenderers[btn].transform.localPosition.y > 0 ? "markerOn" : "markerOff", _pho);
             return false;
         };
     }
@@ -92,13 +100,13 @@ internal class Select
             if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
             {
                 Function.PlaySound("invalidButton", _pho);
-                return true;
+                return !Init.vrMode;
             }
 
             Function.PlaySound("screenPress", _pho);
             ResetMarkers();
             _pho.StartCoroutine(_render.UpdateCubes());
-            return true;
+            return !Init.vrMode;
         };
     }
 
@@ -129,10 +137,22 @@ internal class Select
         }
 
         Function.PlaySound("screenRelease", _pho);
-        _init.isTouched = false;
+        _init.isSelected = false;
 
         for (int i = 0; i < _pho.Tiles.Length; i++)
             _pho.Tiles[i].material.color = Color.black;
+    }
+
+    internal void ShuffleButtons()
+    {
+        buttons = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray().Shuffle();
+
+        if (_render.colorblind)
+            for (int i = 0; i < _pho.ButtonText.Length; i++)
+                _pho.ButtonText[i].text = buttons[i] == ButtonType.Black ? "K" : buttons[i].ToString()[0].ToString();
+
+        for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
+            _pho.ButtonRenderers[i].material.color = Function.GetColor(buttons[i]);
     }
 
     private void IntoSubmit()
@@ -141,11 +161,7 @@ internal class Select
         _init.isInSubmission = true;
 
         Function.PlaySound("startSubmit", _pho);
-
-        buttons = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray().Shuffle();
-
-        for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
-            _pho.ButtonRenderers[i].material.color = Function.GetColor(buttons[i]);
+        ShuffleButtons();
 
         _pho.StartCoroutine(animate.IntoSubmit());
     }

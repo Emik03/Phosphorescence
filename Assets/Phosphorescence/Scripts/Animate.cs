@@ -6,15 +6,17 @@ using Rnd = UnityEngine.Random;
 
 internal class Animate
 {
-    internal Animate(PhosphorescenceScript pho, Init init, Render render)
+    internal Animate(PhosphorescenceScript pho, Init init, Select select, Render render)
     {
         _pho = pho;
         _init = init;
+        _select = select;
         _render = render;
     }
 
     private readonly PhosphorescenceScript _pho;
     private readonly Init _init;
+    private readonly Select _select;
     private readonly Render _render;
 
     private bool isPushingButton;
@@ -53,9 +55,11 @@ internal class Animate
 
     internal IEnumerator PressButton(Transform transform)
     {
+        _init.isAnimated = true;
         isPushingButton = true;
-        yield return new WaitForFixedUpdate();
+        yield return new WaitForSecondsRealtime(0.1f);
         isPushingButton = false;
+        _init.isAnimated = false;
 
         float k = 1;
 
@@ -69,8 +73,68 @@ internal class Animate
         transform.localPosition = new Vector3(transform.localPosition.x, 0, transform.localPosition.z);
     }
 
+    internal IEnumerator ResetButtons()
+    {
+        _init.isAnimated = true;
+        isPushingButton = true;
+        yield return new WaitForSecondsRealtime(0.1f);
+        isPushingButton = false;
+        _init.isAnimated = false;
+
+        _init.submission = string.Empty;
+        _select.ShuffleButtons();
+        Function.PlaySound("shuffleButtons", _pho);
+        
+        float k = 1;
+
+        while (k > 0 && !isPushingButton)
+        {
+            for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
+            {
+                _pho.ButtonRenderers[i].transform.localPosition = new Vector3(_pho.ButtonRenderers[i].transform.localPosition.x, -2 * Function.ElasticIn(k), _pho.ButtonRenderers[i].transform.localPosition.z);
+                Function.SetIntertwinedColor(renderer: _pho.ButtonRenderers[i],
+                                             colorA: Function.GetColor(_select.buttons[i]),
+                                             colorB: Color.white,
+                                             f: Math.Max((k - 0.75f) * 4, 0));
+            }
+
+            k -= 0.0078125f;
+            yield return new WaitForSecondsRealtime(0.01f);
+        }
+
+        for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
+        {
+            _pho.ButtonRenderers[i].transform.localPosition = new Vector3(_pho.ButtonRenderers[i].transform.localPosition.x, 0, _pho.ButtonRenderers[i].transform.localPosition.z);
+            _pho.ButtonRenderers[i].material.color = Function.GetColor(_select.buttons[i]);
+        }
+
+        yield return FadeButtons();
+    }
+
+    internal IEnumerator FadeButtons()
+    {
+        yield return new WaitForFixedUpdate();
+        float k = 0;
+
+        while (k <= 1 && !isPushingButton)
+        {
+            for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
+                Function.SetIntertwinedColor(renderer: _pho.ButtonRenderers[i],
+                                             colorA: Function.GetColor(_select.buttons[i]),
+                                             colorB: Color.black,
+                                             f: k);
+
+            k += 0.001953125f;
+            yield return new WaitForSecondsRealtime(0.01f);
+        }
+
+        for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
+            _pho.ButtonRenderers[i].material.color = Color.black;
+    }
+
     internal IEnumerator IntoSubmit()
     {
+        _pho.StartCoroutine(FadeButtons());
         _init.isAnimated = true;
 
         float k = 1;
@@ -122,7 +186,7 @@ internal class Animate
 
         _init.isAnimated = false;
         _init.isInSubmission = false;
-        _init.isTouched = false;
+        _init.isSelected = false;
     }
 
     internal IEnumerator PostSolve(PhosphorescenceScript pho, int[] displayStates)
@@ -142,7 +206,7 @@ internal class Animate
                         pho.Tiles[k].material.color = Function.GetColor((ButtonType)displayStates[k]);
                     }
 
-                    yield return new WaitForSecondsRealtime(0.1f);
+                    yield return new WaitForSecondsRealtime(0.2f);
                 }
         }
     }

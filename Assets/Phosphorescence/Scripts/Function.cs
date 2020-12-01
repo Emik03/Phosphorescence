@@ -38,6 +38,12 @@ internal static class Function
         return array;
     }
 
+    internal static void SetIntertwinedColor(Renderer renderer, Color32 colorA, Color32 colorB, float f)
+    {
+        float negF = 1 - f;
+        renderer.material.color = new Color32((byte)((colorA.r * negF) + (colorB.r * f)), (byte)((colorA.g * negF) + (colorB.g * f)), (byte)((colorA.b * negF) + (colorB.b * f)), 255);
+    }
+
     internal static string[] GetAllAnswers(string solution, int index)
     {
         List<string>[] answers = new List<string>[solution.Length];
@@ -104,7 +110,7 @@ internal static class Function
             case 120: PlaySound("voice_twominutes", pho); break;
             case 180: PlaySound("voice_threeminutes", pho); break;
             case 240: PlaySound("voice_fourminutes", pho); break;
-            default: if (i % 30 == 0) PlaySound("notableTimeLeft", pho); break;
+            default: if (i % 60 == 0) PlaySound("notableTimeLeft", pho); break;
         }
     }
 

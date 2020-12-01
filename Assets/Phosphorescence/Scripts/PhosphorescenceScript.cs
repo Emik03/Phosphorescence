@@ -14,7 +14,7 @@ public class PhosphorescenceScript : MonoBehaviour
     public KMSelectable Color, Number;
     public KMSelectable[] Buttons, Markers;
     public Renderer[] Tiles, ButtonRenderers, MarkerRenderers;
-    public TextMesh[] Text;
+    public TextMesh[] ScreenText, ButtonText;
     public Transform Panel, Screen;
 
     internal Init init;

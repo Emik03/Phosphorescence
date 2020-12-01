@@ -16,6 +16,7 @@ internal class Render
     internal static int currentTime;
     internal int currentIndex;
     internal float burn;
+    internal string letters = string.Empty;
 
     private readonly PhosphorescenceScript _pho;
     private readonly Init _init;
@@ -24,8 +25,7 @@ internal class Render
     private static readonly Color32[] _allColors = new Color32[] { Color.black, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white };
 
     private int _time;
-    private const float _burnSpeed = 0.00001525878f;
-    private string _letters = string.Empty;
+    private const float _burnSpeed = 0.00000381469f;
     private const string _alphabet = "abcdeghiklmnortuwy";
 
     internal IEnumerator Countdown()
@@ -53,18 +53,18 @@ internal class Render
         if (!_init.isCountingDown)
             yield break;
 
-        _init.isTouched = true;
+        _init.isSelected = true;
 
-        if (++currentIndex >= _letters.Length)
+        if (++currentIndex >= letters.Length)
             NewSequence();
 
         _colors = SetCubeColors();
         burn = 0;
 
-        while (_init.isTouched)
+        while (_init.isSelected)
         {
             DisplayCubes();
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForSecondsRealtime(0.02f);
         }
     }
 
@@ -72,21 +72,21 @@ internal class Render
     {
         if (t <= 0)
         {
-            foreach (var text in _pho.Text)
+            foreach (var text in _pho.ScreenText)
                 text.text = string.Empty;
             return;
         }
 
-        _pho.Text[0].text = (t / 600).ToString();
-        _pho.Text[1].text = (t / 60 % 10).ToString();
-        _pho.Text[2].text = (t % 60 / 10).ToString();
-        _pho.Text[3].text = (t % 10).ToString();
-        _pho.Text[4].text = _pho.Text[4].text = ".";
+        _pho.ScreenText[0].text = (t / 600).ToString();
+        _pho.ScreenText[1].text = (t / 60 % 10).ToString();
+        _pho.ScreenText[2].text = (t % 60 / 10).ToString();
+        _pho.ScreenText[3].text = (t % 10).ToString();
+        _pho.ScreenText[4].text = _pho.ScreenText[4].text = ".";
 
         byte strain = (byte)((float)t / currentTime * 98);
-        int currentPow = (int)Math.Pow(2, int.Parse(_pho.Text[3].text));
+        int currentPow = (int)Math.Pow(2, int.Parse(_pho.ScreenText[3].text));
 
-        foreach (var text in _pho.Text)
+        foreach (var text in _pho.ScreenText)
             text.color = _init.index / currentPow % 2 == 0 ? new Color32(98, strain, strain, 255) : new Color32(196, (byte)(strain * 2), (byte)(strain * 2), 255);
     }
 
@@ -95,39 +95,34 @@ internal class Render
         Function.PlaySound("reshuffle", _pho);
 
         currentIndex = -1;
-        _letters = _init.solution;
+        letters = _init.solution;
         string impostor = _alphabet.Where(c => !_init.solution.Contains(c)).PickRandom().ToString();
 
-        while (_letters.Length < Words.MaxLength)
-            _letters = _letters.Insert(Rnd.Range(0, _letters.Length), impostor);
-        Debug.LogFormat("[Phosphorescence #{0}]: Reshuffled! The sequence shown is {1}.", _init.moduleId, _letters);
+        while (letters.Length < Words.MaxLength)
+            letters = letters.Insert(Rnd.Range(0, letters.Length), impostor);
+        Debug.LogFormat("[Phosphorescence #{0}]: Reshuffled! The sequence shown is {1}.", _init.moduleId, letters);
     }
 
     private void DisplayCubes()
     {
         for (int i = 0; i < _pho.Tiles.Length; i++)
-        {
-            burn = Mathf.Min(burn + (_burnSpeed * (1 - (_time / 400))), 1);
-            _pho.Tiles[i].material.color = new Color32((byte)((_colors[i].r * (1 - burn)) + (128 * burn)), (byte)((_colors[i].g * (1 - burn)) + (128 * burn)), (byte)((_colors[i].b * (1 - burn)) + (128 * burn)), 255);
-        }
+            Function.SetIntertwinedColor(renderer: _pho.Tiles[i],
+                                         colorA: _colors[i],
+                                         colorB: Color.gray,
+                                         f: burn = Mathf.Min(burn + _burnSpeed + ((1 - (_time / currentTime)) * _burnSpeed), 1));
     }
 
     private Color32[] SetCubeColors()
     {
-    restart:
         if (currentIndex == -1)
             return Enumerable.Repeat(new Color32(128, 128, 128, 255), 49).ToArray();
 
-        bool[] booleans = Function.RandomBools(49);
-        int lCount = Function.GetLCount(booleans);
+        bool[] booleans;
+        do booleans = Function.RandomBools(49); // Forces L count to match up with the alphabet.
+        while (Function.GetLCount(booleans) != 10 + _alphabet.IndexOf(letters[currentIndex]));
 
-        // Forces lCount to match up with the alphabet.
-        if (lCount != 10 + _alphabet.IndexOf(_letters[currentIndex]))
-            goto restart;
+        Debug.Log(Function.GetLCount(booleans));
         _colors = AssignCubeColors(booleans);
-
-        //Debug.LogFormat("l: {0}", lCount);
-
         return _colors;
     }
 

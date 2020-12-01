@@ -5,12 +5,12 @@ namespace PhosphorescenceExtensions
 {
     public class ModSettingsJSON
     {
-        public bool DisableMarkers { get; set; }
+        public bool VRMode { get; set; }
         public int StreamDelay { get; set; }
 
-        public static void Get(PhosphorescenceScript pho, out bool disableMarkers, out int streamDelay)
+        public static void Get(PhosphorescenceScript pho, out bool vrMode, out int streamDelay)
         {
-            disableMarkers = false;
+            vrMode = false;
             streamDelay = 0;
 
             try
@@ -19,7 +19,7 @@ namespace PhosphorescenceExtensions
 
                 if (settings != null)
                 {
-                    disableMarkers = settings.DisableMarkers;
+                    vrMode = settings.VRMode;
                     streamDelay = 15 * settings.StreamDelay;
                 }
             }

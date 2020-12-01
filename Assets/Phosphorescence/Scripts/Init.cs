@@ -1,5 +1,4 @@
 ﻿using PhosphorescenceExtensions;
-using System;
 using System.Collections;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
@@ -17,16 +16,16 @@ internal class Init
     internal readonly Select select;
     internal readonly Render render;
 
-    internal static bool disableMarkers;
-    internal bool isSolved, isCountingDown, isInSubmission, isTouched, isAnimated;
+    internal static bool vrMode;
+    internal bool isSolved, isCountingDown, isInSubmission, isSelected, isAnimated;
     internal static int moduleIdCounter, streamDelay;
     internal int moduleId, index;
     internal string solution, submission;
 
     internal void Activate()
     {
-        ModSettingsJSON.Get(pho, out disableMarkers, out streamDelay);
-        render.colorblind = pho.Colorblind.ColorblindModeActive;
+        ModSettingsJSON.Get(pho, out vrMode, out streamDelay);
+        Colorblind();
 
         moduleId = ++moduleIdCounter;
 
@@ -35,18 +34,17 @@ internal class Init
 
         pho.Number.OnInteract += select.NumberPress();
         pho.Color.OnInteract += select.ColorPress();
-        pho.Color.OnCancel += select.ColorCancel();
 
         Function.OnInteractArray(pho.Buttons, select.ButtonPress);
 
-        if (!disableMarkers)
+        if (!vrMode)
         {
+            pho.Color.OnCancel += select.ColorCancel();
             Function.OnInteractArray(pho.Markers, select.MarkerPress);
             return;
         }
 
         pho.Color.OnInteractEnded += select.ColorRelease();
-        pho.Color.Children = new KMSelectable[0];
 
         foreach (var highlight in pho.MarkerHighlightables)
             highlight.transform.localPosition = new Vector3(highlight.transform.localPosition.x, -0.5f, highlight.transform.localPosition.z);
@@ -58,7 +56,7 @@ internal class Init
         yield return new WaitWhile(() => isAnimated);
 
         if (isInSubmission)
-            yield return select.animate.Submit(); // The method causes another instance of Strike() to run, or Solve() if the submission is correct.
+            yield return select.animate.Submit(); // The method causes another instance of Strike() to run, or solve if the submission is correct.
 
         else
             yield return Strike();
@@ -98,12 +96,15 @@ internal class Init
     {
         isSolved = true;
         Debug.LogFormat("[Phosphorescence #{0}]: The submisssion was correct, that is all.", moduleId);
-        
         Function.PlaySound("success", pho);
+
+        // Turns off colorblind, since it doesn't matter at this stage.
+        foreach (var tile in pho.Tiles)
+            tile.material.mainTexture = null;
 
         int[] displayStates = new int[49];
 
-        foreach (var text in pho.Text)
+        foreach (var text in pho.ScreenText)
             text.color = new Color32(98, 196, 98, 255);
 
         for (int i = 0; i < 8; i++)
@@ -117,5 +118,14 @@ internal class Init
         Function.PlaySound("voice_challengecomplete", pho);
         pho.Module.HandlePass();
         yield return select.animate.PostSolve(pho, displayStates);
+    }
+
+    private void Colorblind()
+    {
+        render.colorblind = pho.Colorblind.ColorblindModeActive;
+
+        if (!render.colorblind)
+            foreach (var tile in pho.Tiles)
+                tile.material.mainTexture = null;
     }
 }
