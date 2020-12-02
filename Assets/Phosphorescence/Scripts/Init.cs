@@ -12,11 +12,13 @@ internal class Init
     {
         this.pho = pho;
         render = new Render(pho, this);
+        souvenir = new Souvenir(moduleId = ++moduleIdCounter);
         select = new Select(pho, this, render);
     }
 
     internal readonly PhosphorescenceScript pho;
     internal readonly Select select;
+    internal readonly Souvenir souvenir;
     internal readonly Render render;
 
     /// <summary>
@@ -33,13 +35,13 @@ internal class Init
     internal int moduleId, index;
     internal string solution, submission;
 
+    internal ButtonType[] buttonPresses;
+
     /// <summary>
     /// The startup method for Init, which gets the module prepared to be interacted with.
     /// </summary>
     internal void Activate()
     {
-        moduleId = ++moduleIdCounter;
-
         ModSettingsJSON.Get(pho, out vrMode, out streamDelay);
         Colorblind();
 
@@ -138,6 +140,9 @@ internal class Init
     /// </summary>
     internal IEnumerator Solve()
     {
+        if (pho.Info.GetSolvableModuleNames().Contains("Souvenir"))
+            souvenir.Set(index, buttonPresses);
+
         isSolved = true;
         Debug.LogFormat("[Phosphorescence #{0}]: The submisssion was correct, that is all.", moduleId);
         Function.PlaySound("success", pho);

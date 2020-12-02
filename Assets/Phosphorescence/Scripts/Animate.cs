@@ -113,6 +113,7 @@ internal class Animate
 
         // Clear current submission.
         _init.submission = string.Empty;
+        _init.buttonPresses = new ButtonType[0];
 
         _select.ShuffleButtons();
         Function.PlaySound("shuffleButtons", _pho);
@@ -228,7 +229,7 @@ internal class Animate
         }
 
         // Validation check.
-        if (_init.submission == _init.solution)
+        if (_init.solution == _init.submission)
             _pho.StartCoroutine(_init.Solve());
         else
             _pho.StartCoroutine(_init.BufferStrike());

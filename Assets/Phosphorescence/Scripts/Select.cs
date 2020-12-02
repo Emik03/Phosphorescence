@@ -61,7 +61,7 @@ internal class Select
     /// <summary>
     /// The event handler for pressing 1 of the 8 colored buttons beneath the module initally.
     /// </summary>
-    /// <param name="btn">The index of the buttons array that was pushed.</param>
+    /// <param name="btn">In reading order, the index in the buttons array that was pushed.</param>
     /// <returns>Always false, as the buttons do not have children.</returns>
     internal KMSelectable.OnInteractHandler ButtonPress(int btn)
     {
@@ -84,6 +84,11 @@ internal class Select
 
                 // Append the corresponding character.
                 _init.submission += currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant();
+
+                // Append the next button press.
+                int oldLength = _init.buttonPresses.Length;
+                Array.Resize(ref _init.buttonPresses, oldLength + 1);
+                _init.buttonPresses[oldLength] = buttons[btn];
 
                 Function.PlaySound("submit" + _init.submission.Length, _pho);
                 _pho.StartCoroutine(animate.PressButton(_pho.ButtonRenderers[btn].transform));
@@ -212,6 +217,7 @@ internal class Select
     {
         _init.submission = string.Empty;
         _init.isInSubmission = true;
+        _init.buttonPresses = new ButtonType[0];
 
         Function.PlaySound("startSubmit", _pho);
         ResetMarkers();

@@ -101,7 +101,7 @@ internal static class Function
             foreach (string button in Enum.GetNames(typeof(ButtonType)))
             {
                 // Would pushing the button be valid?
-                if (solution[i] == button[(index + i) % button.Length].ToString().ToLowerInvariant().ToCharArray()[0])
+                if (solution[i] == button[(index + i) % button.Length].ToString().ToLowerInvariant()[0])
                 {
                     // Since Blue and Black both share the same first letter, K is used instead for black.
                     string nextAnswer = button == "Black" ? "K" : button[0].ToString();

@@ -119,8 +119,8 @@ public class TPScript : MonoBehaviour
     
 	private IEnumerator NextCommand()
     {
-        // A release is done prior to a press instead of the other way around to keep the screen lit after the command.
-		yield return Pho.Color.OnCancel();
+		// A release is done prior to a press instead of the other way around to keep the screen lit after the command.
+		ColorOnRelease();
 		yield return new WaitForSecondsRealtime(0.2f);
 		yield return Pho.Color.OnInteract();
 	}
@@ -133,7 +133,7 @@ public class TPScript : MonoBehaviour
         // Mashes the screen until a new sequence is made.
 		while (temp == _render.letters)
 		{
-			yield return Pho.Color.OnCancel();
+			ColorOnRelease();
 			yield return new WaitForSecondsRealtime(0.05f);
 			yield return Pho.Color.OnInteract();
 			yield return new WaitForSecondsRealtime(0.05f);
@@ -156,7 +156,7 @@ public class TPScript : MonoBehaviour
 			ButtonType button;
 
             // Converts the first character to lowercase, making it case-insensitive.
-			_charToButton.TryGetValue(s.ToString().ToLowerInvariant().ToCharArray()[0], out button);
+			_charToButton.TryGetValue(s.ToString().ToLowerInvariant()[0], out button);
 
             // Gets the index of the button to press.
 			int buttonIndex = Array.IndexOf(_select.buttons, button);
@@ -198,10 +198,11 @@ public class TPScript : MonoBehaviour
 				yield return true;
 		}
 
-        // Reset submission, just in case it had any button presses.
+		// Reset submission, just in case it had any button presses.
 		_init.submission = string.Empty;
-        
-        // Take each character from the solution.
+		_init.buttonPresses = new ButtonType[0];
+
+		// Take each character from the solution.
 		foreach (char c in _init.solution)
 		{
             // Take each button.
@@ -212,7 +213,7 @@ public class TPScript : MonoBehaviour
 				int currentIndex = _init.index + _init.submission.Length;
 
                 // Does the button match the character, and therefore is the answer?
-				if (c == currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant().ToCharArray()[0])
+				if (c == currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant()[0])
                 {
 					Pho.Buttons[i].OnInteract();
 					break;
@@ -224,5 +225,13 @@ public class TPScript : MonoBehaviour
 
         // Presses the 7-segment display to submit the answer.
 		Pho.Number.OnInteract();
+	}
+
+	private void ColorOnRelease()
+    {
+		if (Init.vrMode)
+			Pho.Color.OnInteractEnded();
+		else
+			Pho.Color.OnCancel();
 	}
 }
