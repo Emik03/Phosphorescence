@@ -65,7 +65,8 @@ internal class Animate
 
         // Log the current answer.
         Debug.LogFormat("[Phosphorescence #{0}]: The expected answer is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
-        Debug.LogFormat("[Phosphorescence #{0}]: All possible answers are: {1}.", _init.moduleId, Function.GetAllAnswers(_init.solution, _init.index).Join(", "));
+        string[] answers = Words.GetAllAnswers(_init.solution, _init.index);
+        Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
 
         _pho.StartCoroutine(_render.Countdown());
 

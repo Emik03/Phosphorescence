@@ -133,7 +133,6 @@ public class TPScript : MonoBehaviour
 		yield return new WaitForSecondsRealtime(0.2f);
 		yield return Pho.Color.OnInteract();
 	}
-
     
 	private IEnumerator NextSequenceCommand()
 	{
@@ -151,13 +150,23 @@ public class TPScript : MonoBehaviour
 
 	private IEnumerator SubmitCommand(string submit)
     {
-        // Enters submission if it isn't in already.
-		if (!_init.isInSubmission)
+        while (_init.isAnimated)
+            yield return true;
+
+        // If inactive, active it.
+        if (!_init.isCountingDown)
         {
-			yield return Pho.Number.OnInteract();
-			while (_init.isAnimated)
-				yield return true;
-		}
+            yield return Pho.Number.OnInteract();
+            while (_init.isAnimated)
+                yield return true;
+        }
+
+        // Reset submission, just in case it had any button presses.
+        while (_init.submission != string.Empty)
+        {
+            Pho.Buttons[Rnd.Range(0, Pho.Buttons.Length)].OnInteract();
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
 
         // For each character in the user's submission.
         foreach (char s in submit)
@@ -187,59 +196,7 @@ public class TPScript : MonoBehaviour
 	private IEnumerator TwitchHandleForcedSolve()
 	{
 		yield return null;
-
-		while (_init.isAnimated)
-			yield return true;
-
-        // If inactive, active it.
-		if (!_init.isCountingDown)
-		{
-			yield return Pho.Number.OnInteract();
-			while (_init.isAnimated)
-				yield return true;
-		}
-
-        // If not in submission, enter submission.
-		if (!_init.isInSubmission)
-		{
-			yield return Pho.Number.OnInteract();
-			while (_init.isAnimated)
-				yield return true;
-		}
-
-		// Reset submission, just in case it had any button presses.
-		while (_init.submission != string.Empty)
-        {
-			Pho.Buttons[Rnd.Range(0, Pho.Buttons.Length)].OnInteract();
-			yield return new WaitForSecondsRealtime(0.2f);
-        }
-
-		_init.submission = string.Empty;
-		_init.buttonPresses = new ButtonType[0];
-
-		// Take each character from the solution.
-		foreach (char c in _init.solution)
-		{
-            // Take each button.
-			for (int i = 0; i < _select.buttons.Length; i++)
-            {
-                // Get the string name, and current index.
-				string currentSubmit = _select.buttons[i].ToString();
-				int currentIndex = _init.index + _init.submission.Length;
-
-                // Does the button match the character, and therefore is the answer?
-				if (c == currentSubmit[currentIndex % currentSubmit.Length].ToString().ToLowerInvariant()[0])
-                {
-					Pho.Buttons[i].OnInteract();
-					break;
-                }
-			}
-
-            yield return new WaitForSecondsRealtime(0.2f);
-        }
-
-        // Presses the 7-segment display to submit the answer.
-		Pho.Number.OnInteract();
+        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index).PickRandom());
 	}
 
 	private void ColorOnRelease()

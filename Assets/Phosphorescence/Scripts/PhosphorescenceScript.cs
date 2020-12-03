@@ -22,8 +22,7 @@ public class PhosphorescenceScript : MonoBehaviour
 
     private void Awake()
     {
+        Words.Init();
         Module.OnActivate += (init = new Init(this)).Activate;
-        // Uncomment line below to fiddle with the words array.
-        //Words.ReturnAllWords();
     }
 }

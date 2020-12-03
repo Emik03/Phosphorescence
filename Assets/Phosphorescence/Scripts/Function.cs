@@ -82,44 +82,6 @@ internal static class Function
     }
 
     /// <summary>
-    /// Calculates all possible answers of the module.
-    /// </summary>
-    /// <param name="solution">The word to reach to.</param>
-    /// <param name="index">The offset index that is used for the colors.</param>
-    /// <returns>A string array where every element is a valid answer.</returns>
-    internal static string[] GetAllAnswers(string solution, int index)
-    {
-        // Initalize list.
-        List<string>[] answers = new List<string>[solution.Length];
-        for (int i = 0; i < answers.Length; i++)
-            answers[i] = new List<string>();
-
-        // For each character.
-        for (int i = 0; i < solution.Length; i++)
-        {
-            // For each color's word.
-            foreach (string button in Enum.GetNames(typeof(ButtonType)))
-            {
-                // Would pushing the button be valid?
-                if (solution[i] == button[(index + i) % button.Length].ToString().ToLowerInvariant()[0])
-                {
-                    // Since Blue and Black both share the same first letter, K is used instead for black.
-                    string nextAnswer = button == "Black" ? "K" : button[0].ToString();
-
-                    // If this is not the first iteration, we need to add answers based on all the previous answers as well.
-                    if (i == 0)
-                        answers[i].Add(nextAnswer);
-                    else
-                        foreach (string answer in answers[i - 1])
-                            answers[i].Add(answer + nextAnswer);
-                }
-            }
-        }
-
-        return answers[answers.Length - 1].ToArray();
-    }
-
-    /// <summary>
     /// Gets the color equivalent of the supplied ButtonType.
     /// </summary>
     /// <param name="buttonType">The type of ButtonType to use.</param>

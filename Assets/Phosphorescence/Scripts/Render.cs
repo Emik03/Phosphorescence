@@ -29,7 +29,6 @@ internal class Render
 
     private int _time;
     private const float _burnSpeed = 0.00000381469f;
-    private const string _alphabet = "abcdeghiklmnortuwy";
 
     /// <summary>
     /// Starts a countdown, and attempts a strike if it reaches the end. Make sure that _time is set before running a coroutine with this method.
@@ -121,7 +120,9 @@ internal class Render
         letters = _init.solution;
 
         // Find any letter not present in the solution.
-        string impostor = _alphabet.Where(c => !_init.solution.Contains(c)).PickRandom().ToString();
+        string impostor;
+        do impostor = Words.ValidAlphabet.Where(c => !_init.solution.Contains(c)).PickRandom().ToString();
+        while (!Words.ValidImpostor(impostor, _init.solution));
 
         // Randomly append this letter until it reaches the theoretical maximum length.
         while (letters.Length < Words.MaxLength)
@@ -154,7 +155,7 @@ internal class Render
         // Forces L count to match up with the alphabet.
         bool[] booleans;
         do booleans = Function.RandomBools(49); 
-        while (Function.GetLCount(booleans) != 10 + _alphabet.IndexOf(letters[currentIndex]));
+        while (Function.GetLCount(booleans) != 10 + Words.ValidAlphabet.IndexOf(letters[currentIndex]));
         
         // Now that a pattern is formed, convert the boolean array to an array of colors.
         _colors = BoolArrayToColorArray(booleans);
