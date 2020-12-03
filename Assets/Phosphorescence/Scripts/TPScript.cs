@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Rnd = UnityEngine.Random;
 
 /// <summary>
 /// TwitchPlays support for Phosphorescence. Contains an autosolver.
@@ -55,8 +56,16 @@ public class TPScript : MonoBehaviour
 		while (_init.isAnimated)
 			yield return true;
 
-        // Display command: no parameters, a command so simple it doesn't need its own method.
-		if (Regex.IsMatch(split[0], @"^\s*display\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		// Colorblind command: no parameters, a command so simple it doesn't need its own method.
+		if (Regex.IsMatch(split[0], @"^\s*colorblind\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			yield return null;
+			_init.render.colorblind = !_init.render.colorblind;
+			_init.Colorblind();
+		}
+
+		// Display command: no parameters, a command so simple it doesn't need its own method.
+		else if (Regex.IsMatch(split[0], @"^\s*display\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
             yield return Pho.Number.OnInteract();
@@ -199,6 +208,12 @@ public class TPScript : MonoBehaviour
 		}
 
 		// Reset submission, just in case it had any button presses.
+		while (_init.submission != string.Empty)
+        {
+			Pho.Buttons[Rnd.Range(0, Pho.Buttons.Length)].OnInteract();
+			yield return new WaitForSecondsRealtime(0.2f);
+        }
+
 		_init.submission = string.Empty;
 		_init.buttonPresses = new ButtonType[0];
 

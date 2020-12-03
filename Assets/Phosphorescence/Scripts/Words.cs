@@ -57,8 +57,8 @@ internal static class Words
     /// <returns></returns>
 	private static bool IsValidWord(string line, int offset)
     {
-        // This requires words to be 1 to 6 letters long.
-		if (line.Length < 1 || line.Length > MaxLength - 2)
+        // This requires words to be 3 to 6 letters long.
+		if (line.Length < 3 || line.Length > MaxLength - 2)
 			return false;
 
         // This requires words to contain only the letters provided in the current index + amount of characters before it in _validChars.

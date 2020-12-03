@@ -112,7 +112,7 @@ internal class Select
         {
             PressFeedback(_pho.Number.transform, 0.1f);
 
-            if (_init.isSolved || _init.isAnimated || !_init.isCountingDown || _init.isInSubmission)
+            if (_init.isAnimated || _init.isInSubmission)
             {
                 Function.PlaySound("invalidButton", _pho);
                 return false;

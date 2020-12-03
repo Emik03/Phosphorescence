@@ -12,30 +12,31 @@ internal class Init
     {
         this.pho = pho;
         render = new Render(pho, this);
-        souvenir = new Souvenir(moduleId = ++moduleIdCounter);
         select = new Select(pho, this, render);
+
+        moduleId = ++moduleIdCounter;
+        render.colorblind = pho.Colorblind.ColorblindModeActive;
     }
 
     internal readonly PhosphorescenceScript pho;
     internal readonly Select select;
-    internal readonly Souvenir souvenir;
     internal readonly Render render;
+
+    /// <summary>
+    /// Souvenir Question: "What sequence of buttons were pressed?"
+    /// Since there are (usually) multiple answers, having only the submitted word and offset doesn't guarantee knowing button presses.
+    /// </summary>
+    internal ButtonType[] buttonPresses;
 
     /// <summary>
     /// If true, disables incompatible markers and initalizes bottom display's event as OnInteractEnded instead of OnCancel.
     /// </summary>
     internal static bool vrMode;
 
-    /// <summary>
-    /// Records critical states of the module.
-    /// </summary>
     internal bool isSolved, isCountingDown, isInSubmission, isSelected, isAnimated;
-
     internal static int moduleIdCounter, streamDelay;
     internal int moduleId, index;
     internal string solution, submission;
-
-    internal ButtonType[] buttonPresses;
 
     /// <summary>
     /// The startup method for Init, which gets the module prepared to be interacted with.
@@ -72,12 +73,10 @@ internal class Init
     }
 
     /// <summary>
-    /// Sets colorblind to be whether or not it is enabled.
+    /// Sets colorblind to the tile textures, based on the colorblind variable.
     /// </summary>
-    private void Colorblind()
+    internal void Colorblind()
     {
-        render.colorblind = pho.Colorblind.ColorblindModeActive;
-
         foreach (var tile in pho.Tiles)
             tile.material.mainTexture = render.colorblind ? pho.ColorblindTexture : null;
     }
@@ -140,9 +139,6 @@ internal class Init
     /// </summary>
     internal IEnumerator Solve()
     {
-        if (pho.Info.GetSolvableModuleNames().Contains("Souvenir"))
-            souvenir.Set(index, buttonPresses);
-
         isSolved = true;
         Debug.LogFormat("[Phosphorescence #{0}]: The submisssion was correct, that is all.", moduleId);
         Function.PlaySound("success", pho);

@@ -57,7 +57,7 @@ internal class Animate
         }
 
         // Most of the time this will only need to run once. This is a failsafe to make sure that there are at least 3 answers.
-        do _init.index = Rnd.Range(0, 420);
+        do _init.index = Rnd.Range(0, Words.ValidWords.GetLength(0));
         while (Words.ValidWords[_init.index].Length < 3);
 
         // Pick any solution from the current index.
