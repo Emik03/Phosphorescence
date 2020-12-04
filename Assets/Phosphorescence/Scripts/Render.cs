@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
@@ -119,13 +120,18 @@ internal class Render
         letters = _init.solution;
 
         // Find any letter not present in the solution.
-        string impostor;
-        do impostor = Words.ValidAlphabet.Where(c => !_init.solution.Contains(c)).PickRandom().ToString();
+        List<char> alphabet = Words.ValidAlphabet.Where(c => !_init.solution.Contains(c)).ToList();
+        char impostor;
+        do
+        {
+            impostor = alphabet.PickRandom();
+            alphabet.RemoveAt(alphabet.IndexOf(impostor));
+        }
         while (!Words.IsValidImpostor(impostor, _init.solution));
 
         // Randomly append this letter until it reaches the theoretical maximum length.
         while (letters.Length < Words.SequenceLength)
-            letters = letters.Insert(Rnd.Range(0, letters.Length), impostor);
+            letters = letters.Insert(Rnd.Range(0, letters.Length), impostor.ToString());
 
         Debug.LogFormat("[Phosphorescence #{0}]: Reshuffled! The sequence shown is {1}.", _init.moduleId, letters);
     }
@@ -152,10 +158,36 @@ internal class Render
             return Enumerable.Repeat(new Color32(128, 128, 128, 255), 49).ToArray();
 
         // Forces L count to match up with the alphabet.
-        bool[] booleans;
-        do booleans = Function.RandomBools(49); 
-        while (Function.GetLCount(booleans) != 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]));
-        
+        bool[] booleans = Function.RandomBools(49);
+
+        int times = 0;
+        int goal = 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]);
+        while (Function.GetLCount(booleans) != goal)
+        {
+            times++;
+            bool isLower = Function.GetLCount(booleans) < goal;
+
+            int[] iIndexes = Enumerable.Range(0, 6).ToArray().Shuffle(),
+                  jIndexes = Enumerable.Range(0, 6).ToArray().Shuffle();
+
+            for (int i = 0; i < iIndexes.Length; i++)
+            {
+                for (int j = 0; j < jIndexes.Length; j++)
+                {
+                    if (isLower ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
+                    {
+                        int iRandom = Rnd.Range(0, 1),
+                            jRandom = Rnd.Range(0, 1);
+                        Function.InvertBoolean(ref booleans[((iIndexes[i] + iRandom) * 7) + jIndexes[j] + jRandom]);
+                        goto check;
+                    }
+                }
+            }
+
+        check:
+            goal += 0; // This does nothing. This is just so we can iterate through the loop again.
+        }
+
         // Now that a pattern is formed, convert the boolean array to an array of colors.
         _colors = BoolArrayToColorArray(booleans);
         return _colors;

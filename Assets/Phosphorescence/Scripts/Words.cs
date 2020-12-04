@@ -65,7 +65,7 @@ internal static class Words
     /// <param name="impostor">The impostor letter.</param>
     /// <param name="solution">The current solution.</param>
     /// <returns>True if the impostor character cannot create a valid word.</returns>
-    internal static bool IsValidImpostor(string impostor, string solution)
+    internal static bool IsValidImpostor(char impostor, string solution)
     {
         if (solution.Select(c => ValidAlphabet.IndexOf(c)).Any(i => Math.Abs(i - ValidAlphabet.IndexOf(impostor)) <= 1))
             return false;

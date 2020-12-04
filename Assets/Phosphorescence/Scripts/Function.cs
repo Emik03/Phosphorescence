@@ -64,6 +64,15 @@ internal static class Function
     }
 
     /// <summary>
+    /// Inverts a boolean.
+    /// </summary>
+    /// <param name="boolean">The boolean to invert.</param>
+    internal static void InvertBoolean(ref bool boolean)
+    {
+        boolean = !boolean;
+    }
+
+    /// <summary>
     /// Emulates a foreach loop that can be used inline alongside other Linq functions.
     /// </summary>
     /// <typeparam name="T">The datatype of the variable.</typeparam>
@@ -236,21 +245,26 @@ internal static class Function
 
         for (int i = 0; i < s - 1; i++)
             for (int j = 0; j < s - 1; j++)
-            {
-                // Subarray containing the 4 current squares.
-                bool[] subArray = new[]
-                {
-                    colors[(i * s) + j],
-                    colors[(i * s) + j + 1],
-                    colors[((i + 1) * s) + j],
-                    colors[((i + 1) * s) + j + 1]
-                };
-                
-                // Do the current 4 squares contain 1 or 3 black squares? (Which indicates an L-shape).
-                if (subArray.Where(b => b).Count() % 2 == 1)
+                if (IsLPattern(colors, i, j))
                     count++;
-            }
 
         return count;
+    }
+
+    internal static bool IsLPattern(bool[] colors, int i, int j)
+    {
+        const int s = 7;
+
+        // Subarray containing the 4 current squares.
+        bool[] subArray = new[]
+        {
+            colors[(i * s) + j],
+            colors[(i * s) + j + 1],
+            colors[((i + 1) * s) + j],
+            colors[((i + 1) * s) + j + 1]
+        };
+
+        // Do the current 4 squares contain 1 or 3 black squares? (Which indicates an L-shape).
+        return subArray.Where(b => b).Count() % 2 == 1;
     }
 }
