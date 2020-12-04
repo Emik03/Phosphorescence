@@ -111,6 +111,7 @@ internal class Init
     private IEnumerator Strike()
     {
         isAnimated = true;
+        solution = string.Empty;
 
         Debug.LogFormat("[Phosphorescence #{0}]: Submission \"{1}\" did not match the expected \"{2}\"!", moduleId, submission, solution);
         Function.PlaySound("strike", pho);
