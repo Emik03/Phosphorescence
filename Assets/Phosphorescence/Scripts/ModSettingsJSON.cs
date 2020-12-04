@@ -12,6 +12,11 @@ namespace PhosphorescenceExtensions
     public class ModSettingsJSON
     {
         /// <summary>
+        /// When disabled, there will be no indicators/letters for colors.
+        /// </summary>
+        public bool CruelMode { get; set; }
+
+        /// <summary>
         /// Uses the appropriate event triggers for what this is set on.
         /// </summary>
         public bool VRMode { get; set; }
@@ -26,9 +31,10 @@ namespace PhosphorescenceExtensions
         /// </summary>
         /// <param name="vrMode">Used for initalization only.</param>
         /// <param name="streamDelay">Determines the timer.</param>
-        public static void Get(PhosphorescenceScript pho, out bool vrMode, out int streamDelay)
+        public static void Get(PhosphorescenceScript pho, out bool cruelMode, out bool vrMode, out int streamDelay)
         {
             // Default values.
+            cruelMode = false;
             vrMode = false;
             streamDelay = 0;
 
@@ -40,6 +46,7 @@ namespace PhosphorescenceExtensions
                 // Do settings exist?
                 if (settings != null)
                 {
+                    cruelMode = settings.CruelMode;
                     vrMode = settings.VRMode;
                     streamDelay = 15 * settings.StreamDelay;
                 }

@@ -1,21 +1,23 @@
 ﻿using PhosphorescenceExtensions;
+using System;
 using System.Collections;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
 /// <summary>
-/// Initalizer class for Phosphorescence. Create a new instance to initiate the module.
+/// Initalizer class for Phosphorescence. Create a new instance of this class to initiate the module.
 /// </summary>
 internal class Init
 {
     internal Init(PhosphorescenceScript pho)
     {
+        Words.Init(pho.WordList);
+
         this.pho = pho;
         render = new Render(pho, this);
         select = new Select(pho, this, render);
 
-        moduleId = ++moduleIdCounter;
-        render.colorblind = pho.Colorblind.ColorblindModeActive;
+        Activate();
     }
 
     internal readonly PhosphorescenceScript pho;
@@ -43,16 +45,22 @@ internal class Init
     /// </summary>
     internal void Activate()
     {
-        ModSettingsJSON.Get(pho, out vrMode, out streamDelay);
-        Colorblind();
+        // Sets module ID.
+        moduleId = ++moduleIdCounter;
 
-        // Plays voice lines only if it is the last one initiated. Otherwise, multiple sounds could stack up.
+        // Sets accessibility.
+        ModSettingsJSON.Get(pho, out render.cruelMode, out vrMode, out streamDelay);
+        UpdateCruel();
+
+        // This allows TP to read this class.
+        pho.TP.Activate(this);
+
+        // Plays voice lines only if it is the last one initiated. Not checking this causes multiple sounds to stack up.
         pho.Info.OnBombSolved += delegate () { if (moduleId == moduleIdCounter) Function.PlaySound("voice_bombdisarmed", pho); };
         pho.Info.OnBombExploded += delegate () { if (moduleId == moduleIdCounter) Function.PlaySound("voice_gameover", pho); };
 
         pho.Number.OnInteract += select.NumberPress();
         pho.Color.OnInteract += select.ColorPress();
-
         Function.OnInteractArray(pho.Buttons, select.ButtonPress);
 
         // Initalize markers, and use OnCancel.
@@ -73,12 +81,12 @@ internal class Init
     }
 
     /// <summary>
-    /// Sets colorblind to the tile textures, based on the colorblind variable.
+    /// Sets cruel mode to the tile textures, based on the cruel mode variable.
     /// </summary>
-    internal void Colorblind()
+    private void UpdateCruel()
     {
         foreach (var tile in pho.Tiles)
-            tile.material.mainTexture = render.colorblind ? pho.ColorblindTexture : null;
+            tile.material.mainTexture = render.cruelMode ? null : pho.TileTexture;
     }
 
     /// <summary>
@@ -117,7 +125,7 @@ internal class Init
         for (int i = 0; i <= 25; i++)
         {
             foreach (var tile in pho.Tiles)
-                tile.material.color = Function.GetColor(Rnd.Range(0, 25) >= i ? ButtonType.Black : ButtonType.Red);
+                tile.material.color = Rnd.Range(0, 25) >= i ? Color.black : Function.GetColor(ButtonType.Red);
 
             yield return new WaitForSecondsRealtime(0.02f);
         }
@@ -126,7 +134,7 @@ internal class Init
         for (int i = 0; i <= 25; i++)
         {
             foreach (var tile in pho.Tiles)
-                tile.material.color = Function.GetColor(Rnd.Range(0, 25) >= i ? ButtonType.Red : ButtonType.Black);
+                tile.material.color = Rnd.Range(0, 25) >= i ? Function.GetColor(ButtonType.Red) : Color.black;
 
             yield return new WaitForSecondsRealtime(0.02f);
         }
@@ -143,7 +151,7 @@ internal class Init
         Debug.LogFormat("[Phosphorescence #{0}]: The submisssion was correct, that is all.", moduleId);
         Function.PlaySound("success", pho);
 
-        // Turns off colorblind, since it doesn't matter at this stage.
+        // Removes the texture, since it doesn't matter at this stage.
         foreach (var tile in pho.Tiles)
             tile.material.mainTexture = null;
 
@@ -156,12 +164,12 @@ internal class Init
             text.color = new Color32(98, 196, 98, 255);
 
         // Flashes all colors.
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < Enum.GetNames(typeof(ButtonType)).Length; i++)
         {
             foreach (var tile in pho.Tiles)
                 tile.material.color = Function.GetColor((ButtonType)i);
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         // Solves the module.

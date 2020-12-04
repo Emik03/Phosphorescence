@@ -1,6 +1,7 @@
 ﻿using PhosphorescenceExtensions;
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
@@ -26,7 +27,7 @@ internal class Animate
     /// <summary>
     /// Used to cancel animations already running relating to button presses, such that IEnumerators don't clash with each other.
     /// </summary>
-    private bool isPushingButton;
+    private bool _isPushingButton;
 
     /// <summary>
     /// Transitions the module to an active state, by first playing an animation.
@@ -56,16 +57,22 @@ internal class Animate
             yield return new WaitForSecondsRealtime(0.02f);
         }
 
+        Function.GenerateColoredButtons(out _select.buttons);
+
+        string[][] newValidWords = Words.GetAllWords(_pho.WordList, Words.GetAllChars(_select.buttons.ToStringArray<ButtonType>()));
+
         // Most of the time this will only need to run once. This is a failsafe to make sure that there are at least 3 answers.
-        do _init.index = Rnd.Range(0, Words.ValidWords.GetLength(0));
-        while (Words.ValidWords[_init.index].Length < 3);
+        do _init.index = Rnd.Range(0, newValidWords.GetLength(0));
+        while (newValidWords[_init.index].Length < Words.MinAcceptableWordSet);
 
         // Pick any solution from the current index.
-        _init.solution = Words.ValidWords[_init.index].PickRandom();
+        _init.solution = newValidWords[_init.index].PickRandom();
 
         // Log the current answer.
-        Debug.LogFormat("[Phosphorescence #{0}]: The expected answer is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
-        string[] answers = Words.GetAllAnswers(_init.solution, _init.index);
+        Debug.LogFormat("[Phosphorescence #{0}]: The buttons available are {1}.", _init.moduleId, _select.buttons.Join(", "));
+        Debug.LogFormat("[Phosphorescence #{0}]: The expected submission is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
+
+        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
         Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
 
         _pho.StartCoroutine(_render.Countdown());
@@ -81,15 +88,13 @@ internal class Animate
     internal IEnumerator PressButton(Transform transform)
     {
         // While messy, this ensures that any button already pushed will quit their animation.
-        _init.isAnimated = true;
-        isPushingButton = true;
+        _init.isAnimated = _isPushingButton = true;
         yield return new WaitForSecondsRealtime(0.1f);
-        isPushingButton = false;
-        _init.isAnimated = false;
+        _isPushingButton = _init.isAnimated = false;
 
         // ElasticIn ease of the button being pushed down.
         float k = 1;
-        while (k > 0 && !isPushingButton)
+        while (k > 0 && !_isPushingButton)
         {
             transform.localPosition = new Vector3(transform.localPosition.x, -2 * Function.ElasticIn(k), transform.localPosition.z);
             k -= 0.0078125f;
@@ -106,11 +111,9 @@ internal class Animate
     internal IEnumerator ResetButtons()
     {
         // Similarily to PressButton, this ensures that any btuton already pushed will quit their animation.
-        _init.isAnimated = true;
-        isPushingButton = true;
+        _init.isAnimated = _isPushingButton = true;
         yield return new WaitForSecondsRealtime(0.1f);
-        isPushingButton = false;
-        _init.isAnimated = false;
+        _isPushingButton = _init.isAnimated = false;
 
         // Clear current submission.
         _init.submission = string.Empty;
@@ -121,7 +124,7 @@ internal class Animate
         
         // ElasticÍn ease of all buttons being pushed down.
         float k = 1;
-        while (k > 0 && !isPushingButton)
+        while (k > 0 && !_isPushingButton)
         {
             for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
             {
@@ -155,7 +158,7 @@ internal class Animate
 
         // Gradually turns the buttons black.
         float k = 0;
-        while (k <= 1 && !isPushingButton)
+        while (k <= 1 && !_isPushingButton)
         {
             for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
                 Function.SetIntertwinedColor(renderer: _pho.ButtonRenderers[i],
@@ -251,6 +254,8 @@ internal class Animate
         {
             // For each corner.
             for (int i = 0; i < 4; i++)
+            {
+                Color32 color = Function.GetColor((ButtonType)Rnd.Range(0, Enum.GetNames(typeof(ButtonType)).Length));
                 // 20 is an arbitrary number that works well here.
                 for (int j = 0; j < 20; j++)
                 {
@@ -262,12 +267,12 @@ internal class Animate
                             (i % 4 == 3 && (k % 7) + (7 - (k / 7)) == j) || // Bottom-left
                             (i % 4 == 1 && 7 - (k % 7) + (k / 7) == j) || // Top-right
                             (i % 4 == 2 && 7 - (k % 7) + (7 - (k / 7)) == j)) // Bottom-right
-                            displayStates[k] = ++displayStates[k] % 8;
-                        pho.Tiles[k].material.color = Function.GetColor((ButtonType)displayStates[k]);
+                            pho.Tiles[k].material.color = color;
                     }
 
                     yield return new WaitForSecondsRealtime(0.2f);
                 }
+            }
         }
     }
 }

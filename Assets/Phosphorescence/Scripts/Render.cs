@@ -15,7 +15,7 @@ internal class Render
         _init = init;
     }
     
-    internal bool colorblind;
+    internal bool cruelMode;
     internal static int currentTime;
     internal int currentIndex;
     internal float burn;
@@ -25,7 +25,6 @@ internal class Render
     private readonly Init _init;
 
     private Color32[] _colors = new Color32[49];
-    private static readonly Color32[] _allColors = new Color32[] { Color.black, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white };
 
     private int _time;
     private const float _burnSpeed = 0.00000381469f;
@@ -122,10 +121,10 @@ internal class Render
         // Find any letter not present in the solution.
         string impostor;
         do impostor = Words.ValidAlphabet.Where(c => !_init.solution.Contains(c)).PickRandom().ToString();
-        while (!Words.ValidImpostor(impostor, _init.solution));
+        while (!Words.IsValidImpostor(impostor, _init.solution));
 
         // Randomly append this letter until it reaches the theoretical maximum length.
-        while (letters.Length < Words.MaxLength)
+        while (letters.Length < Words.SequenceLength)
             letters = letters.Insert(Rnd.Range(0, letters.Length), impostor);
 
         Debug.LogFormat("[Phosphorescence #{0}]: Reshuffled! The sequence shown is {1}.", _init.moduleId, letters);
@@ -155,7 +154,7 @@ internal class Render
         // Forces L count to match up with the alphabet.
         bool[] booleans;
         do booleans = Function.RandomBools(49); 
-        while (Function.GetLCount(booleans) != 10 + Words.ValidAlphabet.IndexOf(letters[currentIndex]));
+        while (Function.GetLCount(booleans) != 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]));
         
         // Now that a pattern is formed, convert the boolean array to an array of colors.
         _colors = BoolArrayToColorArray(booleans);
@@ -172,8 +171,8 @@ internal class Render
         Color32 colorA = Color.black, colorB;
 
         // Picks any color for colorB as long as it isn't black or white.
-        do colorB = _allColors.PickRandom();
-        while (Array.IndexOf(_allColors, colorA) == Array.IndexOf(_allColors, colorB) || Array.IndexOf(_allColors, colorB) == _allColors.Length - 1);
+        do colorB = Words.Colors.PickRandom();
+        while (Array.IndexOf(Words.Colors, colorA) == Array.IndexOf(Words.Colors, colorB) || Array.IndexOf(Words.Colors, colorB) == Words.Colors.Length - 1);
 
         // Constructs the array.
         Color32[] colors = new Color32[49];

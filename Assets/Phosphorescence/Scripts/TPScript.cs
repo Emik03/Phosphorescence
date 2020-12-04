@@ -23,25 +23,43 @@ public class TPScript : MonoBehaviour
     /// </summary>
 	private static readonly Dictionary<char, ButtonType> _charToButton = new Dictionary<char, ButtonType>()
 	{
-		{ 'k', ButtonType.Black },
-		{ 'r', ButtonType.Red },
-		{ 'g', ButtonType.Green },
+		{ 'a', ButtonType.Azure },
 		{ 'b', ButtonType.Blue },
-		{ 'c', ButtonType.Cyan },
+		{ 'c', ButtonType.Crimson },
+		{ 'd', ButtonType.Diamond },
+		{ 'e', ButtonType.Emerald },
+		{ 'f', ButtonType.Fuchsia },
+		{ 'g', ButtonType.Green },
+		{ 'h', ButtonType.Hazel },
+		{ 'i', ButtonType.Ice },
+		{ 'j', ButtonType.Jade },
+		{ 'k', ButtonType.Kiwi },
+		{ 'l', ButtonType.Lime },
 		{ 'm', ButtonType.Magenta },
-		{ 'y', ButtonType.Yellow },
+		{ 'n', ButtonType.Navy },
+		{ 'o', ButtonType.Orange },
+		{ 'p', ButtonType.Purple },
+		{ 'q', ButtonType.Quartz },
+		{ 'r', ButtonType.Red },
+		{ 's', ButtonType.Salmon },
+		{ 't', ButtonType.Tan },
+		{ 'u', ButtonType.Ube },
+		{ 'v', ButtonType.Vibe },
 		{ 'w', ButtonType.White },
+		{ 'x', ButtonType.Xotic },
+		{ 'y', ButtonType.Yellow },
+		{ 'z', ButtonType.Zen }
 	};
 
 #pragma warning disable 414
 	private const string TwitchHelpMessage = @"!{0} display | !{0} next | !{0} nextsequence | !{0} submit <KRGBCMYW>";
 #pragma warning restore 414
 
-	private void Start()
+	internal void Activate(Init init)
     {
-		_init = Pho.init;
-		_render = _init.render;
-		_select = _init.select;
+		_init = init;
+		_render = init.render;
+		_select = init.select;
     }
 
     /// <summary>
@@ -50,22 +68,17 @@ public class TPScript : MonoBehaviour
     /// <param name="command">The user's command, trimming off the initial "!{0}" part.</param>
 	private IEnumerator ProcessTwitchCommand(string command)
     {
+		if (_init == null)
+			yield break;
+
 		string[] split = command.Split();
 
         // Wait until the animations aren't playing.
 		while (_init.isAnimated)
 			yield return true;
 
-		// Colorblind command: no parameters, a command so simple it doesn't need its own method.
-		if (Regex.IsMatch(split[0], @"^\s*colorblind\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-		{
-			yield return null;
-			_init.render.colorblind = !_init.render.colorblind;
-			_init.Colorblind();
-		}
-
 		// Display command: no parameters, a command so simple it doesn't need its own method.
-		else if (Regex.IsMatch(split[0], @"^\s*display\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		if (Regex.IsMatch(split[0], @"^\s*display\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
             yield return Pho.Number.OnInteract();
@@ -181,7 +194,10 @@ public class TPScript : MonoBehaviour
 
             // Failsafe, in case it isn't found.
 			if (buttonIndex == -1)
-				throw new IndexOutOfRangeException("SubmitCommand() caused an unexpected error, dumping variables: " + new object[] { submit, s, button, buttonIndex }.Join(", "));
+            {
+				yield return "sendtochaterror Button \"" + s + "\" was unable to be found.";
+				yield break;
+            }
 
             // Presses the corresponding button.
             yield return Pho.Buttons[buttonIndex].OnInteract();
@@ -191,19 +207,22 @@ public class TPScript : MonoBehaviour
 		while (_init.isAnimated)
 			yield return true;
 		yield return Pho.Number.OnInteract();
-    }
-
-	private IEnumerator TwitchHandleForcedSolve()
-	{
-		yield return null;
-        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index).PickRandom());
 	}
 
 	private void ColorOnRelease()
-    {
+	{
 		if (Init.vrMode)
 			Pho.Color.OnInteractEnded();
 		else
 			Pho.Color.OnCancel();
+	}
+
+	private IEnumerator TwitchHandleForcedSolve()
+	{
+		if (_init == null)
+			yield break;
+
+		yield return null;
+        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index, _select.buttons).PickRandom());
 	}
 }

@@ -171,18 +171,12 @@ internal class Select
     /// </summary>
     internal void ShuffleButtons()
     {
-        // Gets all values from ButtonType, and shuffles them.
-        buttons = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray().Shuffle();
+        // Shuffles the buttons, unsurprisingly.
+        buttons = buttons.Shuffle();
 
-        // Renders letters if colorblind is enabled.
-        if (_render.colorblind)
-            for (int i = 0; i < _pho.ButtonText.Length; i++)
-                _pho.ButtonText[i].text = buttons[i] == ButtonType.Black ? "K" : buttons[i].ToString()[0].ToString();
-
-        // Unrenders letters if colorblind is disabled.
-        else
-            for (int i = 0; i < _pho.ButtonText.Length; i++)
-                _pho.ButtonText[i].text = string.Empty;
+        // Renders letters if cruel mode is off.
+        for (int i = 0; i < _pho.ButtonText.Length; i++)
+            _pho.ButtonText[i].text = _render.cruelMode ? string.Empty : buttons[i].ToString()[0].ToString();
 
         // Sets all of the buttons to be the appropriate color, based on the new shuffled array.
         for (int i = 0; i < _pho.ButtonRenderers.Length; i++)

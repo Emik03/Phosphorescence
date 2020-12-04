@@ -2686,7 +2686,6 @@ GameObject:
   - component: {fileID: 114465247912348238}
   - component: {fileID: 114551598920356426}
   - component: {fileID: 114478444889141272}
-  - component: {fileID: 114931433892379696}
   - component: {fileID: 114334833246984144}
   - component: {fileID: 114606009294128424}
   - component: {fileID: 114020545872597784}
@@ -13496,7 +13495,6 @@ MonoBehaviour:
   Audio: {fileID: 114465247912348238}
   Module: {fileID: 114478444889141272}
   Info: {fileID: 114551598920356426}
-  Colorblind: {fileID: 114931433892379696}
   MarkerHighlightables:
   - {fileID: 114746205259304520}
   - {fileID: 114395899955668778}
@@ -13695,7 +13693,9 @@ MonoBehaviour:
   - {fileID: 102729336059996626}
   - {fileID: 102808349455006990}
   - {fileID: 102861486285086430}
-  ColorblindTexture: {fileID: 2800000, guid: 40f619450f7d04e489c5d85d74b94da2, type: 3}
+  WordList: {fileID: 4900000, guid: ba7ead6d17b55614ba95f5548107f987, type: 3}
+  TileTexture: {fileID: 2800000, guid: 40f619450f7d04e489c5d85d74b94da2, type: 3}
+  TP: {fileID: 114887196180153480}
   Panel: {fileID: 4288864885266832}
   Screen: {fileID: 4255746998253800}
 --- !u!114 &114022716267598392
@@ -15245,11 +15245,13 @@ MonoBehaviour:
   m_Script: {fileID: -289456416, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Settings: '{     "VRMode": false,     "HowToUse0": "Mainly for VR, set this to true
-    to prevent problems with the colored screen''s KMSelectable. With it disabled,
-    the screen must be held, and markers are disabled.",      "StreamDelay": 0,     "HowToUse1":
-    "Mainly for TwitchPlays, set this to the amount of seconds of the stream delay.
-    1 second of stream delay equates to +15 additional seconds on the timer." }'
+  Settings: '{   "CruelMode": false,   "HowToUse0": "Cruel mode forces the user to
+    recognise the colors of the buttons without being told from the label.",    "VRMode":
+    false,   "HowToUse1": "Mainly for VR, set this to true to prevent problems with
+    the colored screen''s KMSelectable. With it disabled, the screen must be held,
+    and markers are disabled.",    "StreamDelay": 0,   "HowToUse2": "Mainly for TwitchPlays,
+    set this to the amount of seconds of the stream delay. 1 second of stream delay
+    equates to +15 additional seconds on the timer." }'
   SettingsPath: 
 --- !u!114 &114337403040246966
 MonoBehaviour:
@@ -17406,18 +17408,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - KT/Mobile/DiffuseTint
---- !u!114 &114931433892379696
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1724042484231278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1cfb889a07d5fd4e9baed7960bb397f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorblindMode: 0
 --- !u!114 &114935907246879564
 MonoBehaviour:
   m_ObjectHideFlags: 1

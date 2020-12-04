@@ -40,6 +40,45 @@ internal static class Function
     }
 
     /// <summary>
+    /// Emulates a foreach loop that can be used inline alongside other Linq functions.
+    /// </summary>
+    /// <typeparam name="T">The datatype of the variable.</typeparam>
+    /// <param name="source">The variable to apply.</param>
+    /// <param name="act">The action to apply to the variable.</param>
+    /// <returns>The modification of the variable after each element goes through the action provided.</returns>
+    internal static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> act)
+    {
+        foreach (T element in source) act(element);
+        return source;
+    }
+
+    /// <summary>
+    /// Converts a button type array to a string array.
+    /// </summary>
+    /// <typeparam name="T">The datatype of the variable.</typeparam>
+    /// <param name="buttons">The array to parse with.</param>
+    /// <returns>String array of names of ButtonType array provided.</returns>
+    internal static string[] ToStringArray<T>(this ButtonType[] buttons)
+    {
+        return buttons.Select(b => b.ToString()).ToArray();
+    }
+
+    /// <summary>
+    /// Emulates a foreach loop that can be used inline alongside other Linq functions.
+    /// </summary>
+    /// <typeparam name="T">The datatype of the variable.</typeparam>
+    /// <param name="source">The variable to apply.</param>
+    /// <param name="act">The action to apply to the variable.</param>
+    /// <returns>The modification of the variable after each element goes through the action provided.</returns>
+    internal static Color32[] IterateColors(this IEnumerable<ButtonType> source)
+    {
+        List<Color32> output = new List<Color32>();
+        foreach (ButtonType element in source) 
+            output.Add(GetColor(element));
+        return output.ToArray();
+    }
+
+    /// <summary>
     /// Assigns KMSelectable.OnInteract event handlers. Reminder that your method should have only a single integer parameter, which will be used to pass the index of the button pressed.
     /// </summary>
     /// <param name="selectables">The array to create event handlers for.</param>
@@ -56,19 +95,6 @@ internal static class Function
     }
 
     /// <summary>
-    /// Generates and returns a boolean array that is random.
-    /// </summary>
-    /// <param name="length">The length of the array.</param>
-    /// <returns>A boolean array of random values.</returns>
-    internal static bool[] RandomBools(int length)
-    {
-        bool[] array = new bool[length];
-        for (int i = 0; i < array.Length; i++)
-            array[i] = Rnd.Range(0, 1f) > 0.5;
-        return array;
-    }
-
-    /// <summary>
     /// Mixes the two colors provided and sets the renderer.material.color to be that color. Weighting can be included.
     /// </summary>
     /// <param name="renderer">The renderer to change color. This does mean that the renderer's material must support color.</param>
@@ -82,6 +108,49 @@ internal static class Function
     }
 
     /// <summary>
+    /// Trims all 
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    internal static string[][] TrimAll(string[][] source)
+    {
+        for (int i = 0; i < source.Length; i++)
+            for (int j = 0; j < source[i].Length; j++)
+                source[i][j] = source[i][j].Trim();
+
+        return source;
+    }
+
+    /// <summary>
+    /// Generates and returns a boolean array that is random.
+    /// </summary>
+    /// <param name="length">The length of the array.</param>
+    /// <returns>A boolean array of random values.</returns>
+    internal static bool[] RandomBools(int length)
+    {
+        bool[] array = new bool[length];
+        for (int i = 0; i < array.Length; i++)
+            array[i] = Rnd.Range(0, 1f) > 0.5;
+        return array;
+    }
+
+    /// <summary>
+    /// Converts a hexadecimal string into colors.
+    /// </summary>
+    /// <param name="hex">A string of hexadecimal, which can be formatted as "FFFFFF", "#FFFFFF", or "0xFFFFFF"</param>
+    /// <returns>Color converted from hexadecimal string.</returns>
+    internal static Color HexToColor(string hex)
+    {
+        hex = hex.Replace("0x", "").Replace("#", "");
+        return new Color32(byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber), (byte)(hex.Length < 8 ? 255 : byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber)));
+    }
+
+    internal static void GenerateColoredButtons(out ButtonType[] buttons)
+    {
+        buttons = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().OrderBy(x => Rnd.Range(0, 1f)).Take(8).ToArray();
+    }
+
+    /// <summary>
     /// Gets the color equivalent of the supplied ButtonType.
     /// </summary>
     /// <param name="buttonType">The type of ButtonType to use.</param>
@@ -90,15 +159,33 @@ internal static class Function
     {
         switch (buttonType)
         {
-            case ButtonType.Black: return Color.black;
-            case ButtonType.Red: return Color.red;
-            case ButtonType.Green: return Color.green;
-            case ButtonType.Blue: return Color.blue;
-            case ButtonType.Cyan: return Color.cyan;
-            case ButtonType.Magenta: return Color.magenta;
-            case ButtonType.Yellow: return Color.yellow;
-            case ButtonType.White: return Color.white;
-            default: throw new NotImplementedException();
+            case ButtonType.Azure: return HexToColor("315BA1");
+            case ButtonType.Blue: return HexToColor("0000FF");
+            case ButtonType.Crimson: return HexToColor("DC143C");
+            case ButtonType.Diamond: return HexToColor("B9F2FF");
+            case ButtonType.Emerald: return HexToColor("50C878");
+            case ButtonType.Fuchsia: return HexToColor("F400A1");
+            case ButtonType.Green: return HexToColor("00FF00");
+            case ButtonType.Hazel: return HexToColor("ECC0A1");
+            case ButtonType.Ice: return HexToColor("DDF9F1");
+            case ButtonType.Jade: return HexToColor("00A86B");
+            case ButtonType.Kiwi: return HexToColor("7F9A65");
+            case ButtonType.Lime: return HexToColor("BFFF00");
+            case ButtonType.Magenta: return HexToColor("FF00FF");
+            case ButtonType.Navy: return HexToColor("000080");
+            case ButtonType.Orange: return HexToColor("FF7F00");
+            case ButtonType.Purple: return HexToColor("800080");
+            case ButtonType.Quartz: return HexToColor("51484F");
+            case ButtonType.Red: return HexToColor("FF0000");
+            case ButtonType.Salmon: return HexToColor("FA8072");
+            case ButtonType.Tan: return HexToColor("D2B48C");
+            case ButtonType.Ube: return HexToColor("8878C3");
+            case ButtonType.Vibe: return HexToColor("AC3142");
+            case ButtonType.White: return HexToColor("FFFFFF");
+            case ButtonType.Xotic: return HexToColor("863336");
+            case ButtonType.Yellow: return HexToColor("FFFF00");
+            case ButtonType.Zen: return HexToColor("D2D0AE");
+            default: throw new NotImplementedException("Unrecognised color in Function.GetColor().");
         }
     }
 
