@@ -18,41 +18,8 @@ public class TPScript : MonoBehaviour
 	private Render _render;
 	private Select _select;
 
-    /// <summary>
-    /// Used to take the individual characters from a user's submission and get the equivalent ButtonType.
-    /// </summary>
-	private static readonly Dictionary<char, ButtonType> _charToButton = new Dictionary<char, ButtonType>()
-	{
-		{ 'a', ButtonType.Azure },
-		{ 'b', ButtonType.Blue },
-		{ 'c', ButtonType.Crimson },
-		{ 'd', ButtonType.Diamond },
-		{ 'e', ButtonType.Emerald },
-		{ 'f', ButtonType.Fuchsia },
-		{ 'g', ButtonType.Green },
-		{ 'h', ButtonType.Hazel },
-		{ 'i', ButtonType.Ice },
-		{ 'j', ButtonType.Jade },
-		{ 'k', ButtonType.Kiwi },
-		{ 'l', ButtonType.Lime },
-		{ 'm', ButtonType.Magenta },
-		{ 'n', ButtonType.Navy },
-		{ 'o', ButtonType.Orange },
-		{ 'p', ButtonType.Purple },
-		{ 'q', ButtonType.Quartz },
-		{ 'r', ButtonType.Red },
-		{ 's', ButtonType.Salmon },
-		{ 't', ButtonType.Tan },
-		{ 'u', ButtonType.Ube },
-		{ 'v', ButtonType.Vibe },
-		{ 'w', ButtonType.White },
-		{ 'x', ButtonType.Xotic },
-		{ 'y', ButtonType.Yellow },
-		{ 'z', ButtonType.Zen }
-	};
-
 #pragma warning disable 414
-	private const string TwitchHelpMessage = @"!{0} display | !{0} next | !{0} nextsequence | !{0} submit <KRGBCMYW>";
+	private const string TwitchHelpMessage = @"!{0} pressdisplay | !{0} next | !{0} nextsequence | !{0} submit <A-Z>";
 #pragma warning restore 414
 
 	internal void Activate(Init init)
@@ -78,7 +45,7 @@ public class TPScript : MonoBehaviour
 			yield return true;
 
 		// Display command: no parameters, a command so simple it doesn't need its own method.
-		if (Regex.IsMatch(split[0], @"^\s*display\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		if (Regex.IsMatch(split[0], @"^\s*pressdisplay\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
             yield return Pho.Number.OnInteract();
@@ -187,7 +154,7 @@ public class TPScript : MonoBehaviour
 			ButtonType button;
 
             // Converts the first character to lowercase, making it case-insensitive.
-			_charToButton.TryGetValue(s.ToString().ToLowerInvariant()[0], out button);
+			Function.charToButton.TryGetValue(s.ToString().ToLowerInvariant()[0], out button);
 
             // Gets the index of the button to press.
 			int buttonIndex = Array.IndexOf(_select.buttons, button);

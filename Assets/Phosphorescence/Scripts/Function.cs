@@ -11,6 +11,39 @@ using Rnd = UnityEngine.Random;
 internal static class Function
 {
     /// <summary>
+    /// Used to take the individual characters from a user's submission and get the equivalent ButtonType.
+    /// </summary>
+	internal static readonly Dictionary<char, ButtonType> charToButton = new Dictionary<char, ButtonType>()
+    {
+        { 'a', ButtonType.Azure },
+        { 'b', ButtonType.Blue },
+        { 'c', ButtonType.Crimson },
+        { 'd', ButtonType.Diamond },
+        { 'e', ButtonType.Emerald },
+        { 'f', ButtonType.Fuchsia },
+        { 'g', ButtonType.Green },
+        { 'h', ButtonType.Hazel },
+        { 'i', ButtonType.Ice },
+        { 'j', ButtonType.Jade },
+        { 'k', ButtonType.Kiwi },
+        { 'l', ButtonType.Lime },
+        { 'm', ButtonType.Magenta },
+        { 'n', ButtonType.Navy },
+        { 'o', ButtonType.Orange },
+        { 'p', ButtonType.Purple },
+        { 'q', ButtonType.Quartz },
+        { 'r', ButtonType.Red },
+        { 's', ButtonType.Salmon },
+        { 't', ButtonType.Tan },
+        { 'u', ButtonType.Ube },
+        { 'v', ButtonType.Vibe },
+        { 'w', ButtonType.White },
+        { 'x', ButtonType.Xotic },
+        { 'y', ButtonType.Yellow },
+        { 'z', ButtonType.Zen }
+    };
+
+    /// <summary>
     /// Plays a sound.
     /// </summary>
     /// <param name="sound">The name of the sound file.</param>
@@ -135,11 +168,11 @@ internal static class Function
     /// </summary>
     /// <param name="length">The length of the array.</param>
     /// <returns>A boolean array of random values.</returns>
-    internal static bool[] RandomBools(int length)
+    internal static bool[] RandomBools(int length, float weighting = 0.5f)
     {
         bool[] array = new bool[length];
         for (int i = 0; i < array.Length; i++)
-            array[i] = Rnd.Range(0, 1f) > 0.5;
+            array[i] = Rnd.Range(0, 1f) > weighting;
         return array;
     }
 
@@ -154,9 +187,17 @@ internal static class Function
         return new Color32(byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber), (byte)(hex.Length < 8 ? 255 : byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber)));
     }
 
-    internal static void GenerateColoredButtons(out ButtonType[] buttons)
+    internal static void GenerateColoredButtons(string solution, out ButtonType[] buttons)
     {
-        buttons = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().OrderBy(x => Rnd.Range(0, 1f)).Take(8).ToArray();
+        List<ButtonType> output = new List<ButtonType>();
+        foreach (char c in solution)
+            output.Add(charToButton[c.ToString().ToLowerInvariant()[0]]);
+        while (output.Count < 8)
+        {
+            output.AddRange(Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().OrderBy(x => Rnd.Range(0, 1f)).Take(8 - output.Count).ToArray());
+            output = output.Distinct().ToList();
+        }
+        buttons = output.ToArray();
     }
 
     /// <summary>

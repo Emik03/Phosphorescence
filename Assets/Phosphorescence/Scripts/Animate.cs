@@ -29,12 +29,40 @@ internal class Animate
     /// </summary>
     private bool _isPushingButton;
 
-    /// <summary>
-    /// Transitions the module to an active state, by first playing an animation.
-    /// </summary>
     internal IEnumerator Run()
     {
         _init.isAnimated = true;
+        _pho.StartCoroutine(Words.Init(_pho.WordList, _pho));
+        _pho.StartCoroutine(Startup());
+        yield return new WaitWhile(() => Words.ValidWords == null);
+        yield return new WaitWhile(() => _init.isAnimated);
+
+        _init.isCountingDown = true;
+
+        // Most of the time this will only need to run once. This is a failsafe to make sure that there are at least 3 answers.
+        do _init.index = Rnd.Range(0, Words.ValidWords.GetLength(0));
+        while (Words.ValidWords[_init.index].Length < Words.MinAcceptableWordSet);
+
+        // Pick any solution from the current index.
+        _init.solution = Words.ValidWords[_init.index].PickRandom();
+
+        Function.GenerateColoredButtons(Words.GetAllAnswers(_init.solution, _init.index, Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray()).PickRandom(), out _select.buttons);
+
+        // Log the current answer.
+        Debug.LogFormat("[Phosphorescence #{0}]: The buttons available are {1}.", _init.moduleId, _select.buttons.Join(", "));
+        Debug.LogFormat("[Phosphorescence #{0}]: The expected submission is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
+
+        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
+        Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
+
+        _pho.StartCoroutine(_render.Countdown());
+    }
+
+    /// <summary>
+    /// Transitions the module to an active state, by first playing an animation.
+    /// </summary>
+    internal IEnumerator Startup()
+    {
         Function.PlaySound("start", _pho);
 
         // This makes the display darker, since it always returns 0 in binary.
@@ -57,27 +85,6 @@ internal class Animate
             yield return new WaitForSecondsRealtime(0.02f);
         }
 
-        Function.GenerateColoredButtons(out _select.buttons);
-
-        string[][] newValidWords = Words.GetAllWords(_pho.WordList, Words.GetAllChars(_select.buttons.ToStringArray<ButtonType>()));
-
-        // Most of the time this will only need to run once. This is a failsafe to make sure that there are at least 3 answers.
-        do _init.index = Rnd.Range(0, newValidWords.GetLength(0));
-        while (newValidWords[_init.index].Length < Words.MinAcceptableWordSet);
-
-        // Pick any solution from the current index.
-        _init.solution = newValidWords[_init.index].PickRandom();
-
-        // Log the current answer.
-        Debug.LogFormat("[Phosphorescence #{0}]: The buttons available are {1}.", _init.moduleId, _select.buttons.Join(", "));
-        Debug.LogFormat("[Phosphorescence #{0}]: The expected submission is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
-
-        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
-        Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
-
-        _pho.StartCoroutine(_render.Countdown());
-
-        _init.isCountingDown = true;
         _init.isAnimated = false;
     }
 
@@ -110,7 +117,7 @@ internal class Animate
     /// </summary>
     internal IEnumerator ResetButtons()
     {
-        // Similarily to PressButton, this ensures that any btuton already pushed will quit their animation.
+        // Similarily to PressButton, this ensures that any button already pushed will quit their animation.
         _init.isAnimated = _isPushingButton = true;
         yield return new WaitForSecondsRealtime(0.1f);
         _isPushingButton = _init.isAnimated = false;
@@ -121,7 +128,8 @@ internal class Animate
 
         _select.ShuffleButtons();
         Function.PlaySound("shuffleButtons", _pho);
-        
+        _render.time -= _render.time / 4;
+
         // ElasticÍn ease of all buttons being pushed down.
         float k = 1;
         while (k > 0 && !_isPushingButton)

@@ -1,7 +1,9 @@
 ﻿using PhosphorescenceExtensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -22,41 +24,62 @@ internal static class Words
     /// <summary>
     /// Contains all distinct characters within the button colors enum.
     /// </summary>
-    public static string ValidAlphabet { get; private set; }
+    internal static string ValidAlphabet { get; private set; }
 
     /// <summary>
     /// Contains the characters submitted for all indexes.
     /// </summary>
-	public static string[] ValidChars { get; private set; }
+	internal static string[] ValidChars { get; private set; }
 
     /// <summary>
     /// Contains all words. Indexes represent the same indexes in _validChars.
     /// This means that index 1 should contain words like "ad", from _validChars' "erlaeyhl" -> "deuglaia" (index 1-2).
     /// </summary>
-    public static string[][] ValidWords { get; private set; }
+    internal static string[][] ValidWords { get; private set; }
+
+    internal static string[] ValidDistinctWords { get; private set; }
 
     /// <summary>
     /// Returns the array of all colors from ButtonType in a Color32 equivalent datatype.
     /// </summary>
     internal static Color32[] Colors { get; private set; }
 
+    private static bool _isThreadReady = false;
+    private static string[][] _resultsFromThread = null;
+
     /// <summary>
     /// Sets the valid words property to all words that are valid.
     /// </summary>
-    internal static void Init(TextAsset words)
+    internal static IEnumerator Init(TextAsset words, PhosphorescenceScript pho)
     {
         // If the method has run at least once, we do not need to initalize this again.
         if (ValidWords != null)
-            return;
+            yield break;
 
-        ValidChars = GetAllChars(Enum.GetNames(typeof(ButtonType)));
-        ValidWords = GetAllWords(words, ValidChars);
+        ValidChars = GetAllChars(Enum.GetNames(typeof(ButtonType))); 
         ValidAlphabet = ValidChars.Join("").Distinct().OrderBy(c => c).Join("");
-        Colors = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().IterateColors(); 
+        Colors = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().IterateColors();
 
-        // Log all of the results.
+        yield return StartWordsThread(words);
+
         if (Application.isEditor)
-            Log();
+        {
+            var thread = new Thread(() => Log());
+            thread.Start();
+        }
+    }
+
+    internal static IEnumerator StartWordsThread(TextAsset file)
+    {
+        _isThreadReady = false;
+        string[] words = file.text.Split('\n');
+
+        var thread = new Thread(() => GetAllWords(words, ValidChars));
+        thread.Start();
+        yield return new WaitUntil(() => _isThreadReady);
+
+        ValidDistinctWords = Flatten(_resultsFromThread).Distinct().ToArray();
+        ValidWords = _resultsFromThread;
     }
 
     /// <summary>
@@ -72,7 +95,7 @@ internal static class Words
 
         foreach (char potentialImpostor in solution.Distinct())
         {
-            if (Flatten(ValidWords).Distinct().Contains(solution.Select(c => c != potentialImpostor).Join("")))
+            if (ValidDistinctWords.Contains(solution.Select(c => c != potentialImpostor).Join("")))
                 return false;
         }
         return true;
@@ -134,17 +157,18 @@ internal static class Words
     /// Gets all words that are valid.
     /// </summary>
     /// <returns>Jagged array of all valid words, indexes correlating with the valid characters array.</returns>
-	internal static string[][] GetAllWords(TextAsset file, string[] validChars)
+	internal static void GetAllWords(string[] words, string[] validChars)
     {
         // This is simply the directory of a large word list of strictly nouns.
-        string[] words = file.text.Split('\n');
         string[][] output = new string[ValidChars.Length][];
 
         // Tests for all offsets in _validChars.
         for (int offset = 0; offset < ValidChars.Length; offset++)
             output[offset] = words.Where(w => IsValidWord(w, offset, validChars)).ToArray();
+        
+        _resultsFromThread = Function.TrimAll(output);
 
-        return Function.TrimAll(output);
+        _isThreadReady = true;
     }
 
     /// <summary>
@@ -152,23 +176,28 @@ internal static class Words
     /// </summary>
     private static void Log()
     {
+        Debug.LogWarningFormat("Log method initalized. Dumping all variables... Make sure that you only receive at most 430 warnings! (Press the warning icon in the top-right part of the console to hide this logging!)");
+
         for (int i = 0; i < ValidWords.Length; i++)
-            Debug.LogFormat("{0}: {1}.", i, ValidWords[i].Join(", "));
+            Debug.LogWarningFormat("{0}: {1}.", i, ValidWords[i].Join(", "));
 
-        Debug.LogFormat("Valid alphabet: {0}.", ValidAlphabet.Join(", "));
-        Debug.LogFormat("Valid character sequence: {0}.", ValidChars.Join(", "));
+        Debug.LogWarningFormat("Valid alphabet: {0}.", ValidAlphabet.Join(", "));
+        Debug.LogWarningFormat("Valid character sequence: {0}.", ValidChars.Join(", "));
 
-        Debug.LogFormat("The shortest words are: {0}.", GetShortest().Join(", "));
-        Debug.LogFormat("The longest words are: {0}.", GetLongest().Join(", "));
+        Debug.LogWarningFormat("The shortest words are: {0}.", GetShortest().Join(", "));
+        Debug.LogWarningFormat("The longest words are: {0}.", GetLongest().Join(", "));
+        
+        Debug.LogWarningFormat("The smallest length of a given index is: {0}", GetShortestLength());
+        Debug.LogWarningFormat("The longest length of a given index is: {0}", GetLongestLength());
 
-        Debug.LogFormat("The indexes that don't meet the required {0} length are: {1}", MinAcceptableWordSet, ValidWords.Where(a => a.Length < MinAcceptableWordSet).Select(a => Array.IndexOf(ValidWords, a)).Join(", "));
+        Debug.LogWarningFormat("The indexes that don't meet the required {0} length are: {1}", MinAcceptableWordSet, ValidWords.Where(a => a.Length < MinAcceptableWordSet).Select(a => Array.IndexOf(ValidWords, a)).Join(", "));
 
-        Debug.LogFormat("The amount of distinct to total words are: {0}/{1}.", GetCount(distinct: true), GetCount(distinct: false));
-        Debug.LogFormat("The words that are completely unique are: {0}.", Flatten(ValidWords).GroupBy(x => x).Where(g => g.Count() == 1).Select(y => y.Key).Join(", "));
+        Debug.LogWarningFormat("The amount of distinct to total words are: {0}/{1}.", GetCount(distinct: true), GetCount(distinct: false));
+        Debug.LogWarningFormat("The words that are completely unique are: {0}.", ValidDistinctWords.GroupBy(x => x).Where(g => g.Count() == 1).Select(y => y.Key).Join(", "));
     }
 
     /// <summary>
-    /// Tests if the word is valid, both in length, and its characters.
+    /// Tests if the word is valid, both in length, and each character being part of the valid string array.
     /// </summary>
     /// <param name="line">The string to test.</param>
     /// <param name="offset">The starting index for _validChars</param>
@@ -238,7 +267,7 @@ internal static class Words
     /// <returns>The shortest string(s) in ValidWords.</returns>
 	private static IEnumerable<string> GetShortest()
     {
-        List<string> shortestWord = new List<string>() { ValidWords.PickRandom().PickRandom() };
+        List<string> shortestWord = new List<string>() { ValidWords.First().First() };
 
         for (int i = 0; i < ValidWords.Length; i++)
         {
@@ -276,6 +305,40 @@ internal static class Words
 		}
 
 		return longestWord.Distinct();
+    }
+
+    /// <summary>
+    /// Returns the length of the shortest subarray in ValidWords.
+    /// </summary>
+    /// <returns>The length of the shortest subarray in ValidWords.</returns>
+	private static int GetShortestLength()
+    {
+        int shortest = ValidWords.First().Length;
+
+        for (int i = 1; i < ValidWords.Length; i++)
+        {
+            if (shortest > ValidWords[i].Length)
+                shortest = ValidWords[i].Length;
+        }
+
+        return shortest;
+    }
+
+    /// <summary>
+    /// Returns the length of the longest subarray in ValidWords.
+    /// </summary>
+    /// <returns>The length of the longest subarray in ValidWords.</returns>
+	private static int GetLongestLength()
+    {
+        int longest = ValidWords.First().Length;
+
+        for (int i = 1; i < ValidWords.Length; i++)
+        {
+            if (longest < ValidWords[i].Length)
+                longest = ValidWords[i].Length;
+        }
+
+        return longest;
     }
 
     /// <summary>

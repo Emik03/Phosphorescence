@@ -11,8 +11,6 @@ internal class Init
 {
     internal Init(PhosphorescenceScript pho)
     {
-        Words.Init(pho.WordList);
-
         this.pho = pho;
         render = new Render(pho, this);
         select = new Select(pho, this, render);
@@ -111,9 +109,10 @@ internal class Init
     private IEnumerator Strike()
     {
         isAnimated = true;
-        solution = string.Empty;
-
+        
         Debug.LogFormat("[Phosphorescence #{0}]: Submission \"{1}\" did not match the expected \"{2}\"!", moduleId, submission, solution);
+        solution = string.Empty; 
+
         Function.PlaySound("strike", pho);
 
         // Disable screen.

@@ -18,7 +18,7 @@ internal class Render
     
     internal bool cruelMode;
     internal static int currentTime;
-    internal int currentIndex;
+    internal int currentIndex, time;
     internal float burn;
     internal string letters = string.Empty;
 
@@ -27,7 +27,6 @@ internal class Render
 
     private Color32[] _colors = new Color32[49];
 
-    private int _time;
     private const float _burnSpeed = 0.00000381469f;
 
     /// <summary>
@@ -38,13 +37,13 @@ internal class Render
         _init.isCountingDown = true;
         Function.PlaySound("voice_go", _pho);
 
-        for (_time = currentTime; _time >= 1; _time--)
+        for (time = currentTime; time >= 1; time--)
         {
             if (!_init.isCountingDown)
                 yield break;
 
-            Function.CountSound(_time, _pho, _time == currentTime);
-            UpdateDisplay(_time);
+            Function.CountSound(time, _pho, time == currentTime);
+            UpdateDisplay(time);
 
             yield return new WaitForSecondsRealtime(1);
         }
@@ -96,7 +95,7 @@ internal class Render
         _pho.ScreenText[1].text = (t / 60 % 10).ToString(); // 0X:00
         _pho.ScreenText[2].text = (t % 60 / 10).ToString(); // 00:X0
         _pho.ScreenText[3].text = (t % 10).ToString(); // 00:0X
-        _pho.ScreenText[4].text = _pho.ScreenText[4].text = "."; // 00X00
+        _pho.ScreenText[4].text = _pho.ScreenText[5].text = "."; // 00X00
 
         // Redshifts the display as the timer ticks closer to 0.
         byte strain = (byte)((float)t / currentTime * 98);
@@ -145,7 +144,7 @@ internal class Render
             Function.SetIntertwinedColor(renderer: _pho.Tiles[i],
                                          colorA: _colors[i],
                                          colorB: Color.gray,
-                                         f: burn = Mathf.Min(burn + _burnSpeed + ((1 - (_time / currentTime)) * _burnSpeed), 1));
+                                         f: burn = Mathf.Min(burn + _burnSpeed + ((1 - (time / currentTime)) * _burnSpeed), 1));
     }
 
     /// <summary>
@@ -160,12 +159,12 @@ internal class Render
         // Forces L count to match up with the alphabet.
         bool[] booleans = Function.RandomBools(49);
 
-        int times = 0;
+        int count = 0;
         int goal = 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]);
         while (Function.GetLCount(booleans) != goal)
         {
-            times++;
-            bool isLower = Function.GetLCount(booleans) < goal;
+            count++;
+            bool needsMore = Function.GetLCount(booleans) < goal;
 
             int[] iIndexes = Enumerable.Range(0, 6).ToArray().Shuffle(),
                   jIndexes = Enumerable.Range(0, 6).ToArray().Shuffle();
@@ -174,11 +173,9 @@ internal class Render
             {
                 for (int j = 0; j < jIndexes.Length; j++)
                 {
-                    if (isLower ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
+                    if (needsMore ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
                     {
-                        int iRandom = Rnd.Range(0, 1),
-                            jRandom = Rnd.Range(0, 1);
-                        Function.InvertBoolean(ref booleans[((iIndexes[i] + iRandom) * 7) + jIndexes[j] + jRandom]);
+                        Function.InvertBoolean(ref booleans[((iIndexes[i] + Rnd.Range(0, 1)) * 7) + jIndexes[j] + Rnd.Range(0, 1)]);
                         goto check;
                     }
                 }
@@ -197,7 +194,7 @@ internal class Render
     /// Converts a boolean array to a color array.
     /// </summary>
     /// <param name="booleans">The array to scan with.</param>
-    /// <returns>Returns a color array based on the boolean array where false is always black, and true is 1 of the 6 in Red, Green, Blue, Cyan, Magenta, Yellow.</returns>
+    /// <returns>Returns a color array based on the boolean array where false is always black, and true is 1 of the colors in ButtonType, excluding ButtonType.Black.</returns>
     private Color32[] BoolArrayToColorArray(bool[] booleans)
     {
         Color32 colorA = Color.black, colorB;
