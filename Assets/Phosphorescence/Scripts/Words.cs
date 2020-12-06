@@ -79,6 +79,7 @@ internal static class Words
         yield return new WaitUntil(() => _isThreadReady);
 
         ValidDistinctWords = Flatten(_resultsFromThread).Distinct().ToArray();
+
         ValidWords = _resultsFromThread;
     }
 

@@ -156,15 +156,12 @@ internal class Render
         if (currentIndex == -1)
             return Enumerable.Repeat(new Color32(128, 128, 128, 255), 49).ToArray();
 
-        // Forces L count to match up with the alphabet.
         bool[] booleans = Function.RandomBools(49);
 
-        int count = 0;
         int goal = 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]);
         while (Function.GetLCount(booleans) != goal)
         {
-            count++;
-            bool needsMore = Function.GetLCount(booleans) < goal;
+            bool needMoreLs = Function.GetLCount(booleans) < goal;
 
             int[] iIndexes = Enumerable.Range(0, 6).ToArray().Shuffle(),
                   jIndexes = Enumerable.Range(0, 6).ToArray().Shuffle();
@@ -173,7 +170,7 @@ internal class Render
             {
                 for (int j = 0; j < jIndexes.Length; j++)
                 {
-                    if (needsMore ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
+                    if (needMoreLs ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
                     {
                         Function.InvertBoolean(ref booleans[((iIndexes[i] + Rnd.Range(0, 1)) * 7) + jIndexes[j] + Rnd.Range(0, 1)]);
                         goto check;

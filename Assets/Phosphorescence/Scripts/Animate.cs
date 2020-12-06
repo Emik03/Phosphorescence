@@ -43,16 +43,20 @@ internal class Animate
         do _init.index = Rnd.Range(0, Words.ValidWords.GetLength(0));
         while (Words.ValidWords[_init.index].Length < Words.MinAcceptableWordSet);
 
+    restart:
         // Pick any solution from the current index.
         _init.solution = Words.ValidWords[_init.index].PickRandom();
 
         Function.GenerateColoredButtons(Words.GetAllAnswers(_init.solution, _init.index, Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray()).PickRandom(), out _select.buttons);
+        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
+
+        // I really don't want answers to contain this anywhere.
+        if (answers.Contains("NIG"))
+            goto restart;
 
         // Log the current answer.
         Debug.LogFormat("[Phosphorescence #{0}]: The buttons available are {1}.", _init.moduleId, _select.buttons.Join(", "));
         Debug.LogFormat("[Phosphorescence #{0}]: The expected submission is {1}, deriving from the starting offset {2}.", _init.moduleId, _init.solution, _init.index);
-
-        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
         Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
 
         _pho.StartCoroutine(_render.Countdown());

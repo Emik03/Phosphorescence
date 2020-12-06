@@ -73,6 +73,17 @@ internal static class Function
     }
 
     /// <summary>
+    /// Returns the character as lowercase.
+    /// </summary>
+    /// <typeparam name="T">The datatype of the variable.</typeparam>
+    /// <param name="source">The variable to apply lowercase to.</param>
+    /// <returns>The lowercase version of the character.</returns>
+    internal static char ToLower<Tchar>(this Tchar source)
+    {
+        return source.ToString().ToLowerInvariant()[0];
+    }
+
+    /// <summary>
     /// Emulates a foreach loop that can be used inline alongside other Linq functions.
     /// </summary>
     /// <typeparam name="T">The datatype of the variable.</typeparam>
@@ -191,7 +202,7 @@ internal static class Function
     {
         List<ButtonType> output = new List<ButtonType>();
         foreach (char c in solution)
-            output.Add(charToButton[c.ToString().ToLowerInvariant()[0]]);
+            output.Add(charToButton[c.ToLower()]);
         while (output.Count < 8)
         {
             output.AddRange(Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().OrderBy(x => Rnd.Range(0, 1f)).Take(8 - output.Count).ToArray());

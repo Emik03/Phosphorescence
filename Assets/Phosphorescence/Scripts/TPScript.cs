@@ -18,8 +18,20 @@ public class TPScript : MonoBehaviour
 	private Render _render;
 	private Select _select;
 
+	private static readonly Dictionary<string, int> _posToIndex = new Dictionary<string, int>
+	{
+		{ "tl", 0 },
+		{ "tm", 1 },
+		{ "tr", 2 },
+		{ "ml", 3 },
+		{ "mm", 4 },
+		{ "mr", 5 },
+		{ "bl", 6 },
+		{ "br", 7 }
+	};
+
 #pragma warning disable 414
-	private const string TwitchHelpMessage = @"!{0} pressdisplay | !{0} next | !{0} nextsequence | !{0} submit <A-Z>";
+	private const string TwitchHelpMessage = @"!{0} pressdisplay | !{0} next | !{0} nextsequence | !{0} submit <TL/TM/TR/ML/MM/MR/BL/BR>... (refers to position, tl = top left)";
 #pragma warning restore 414
 
 	internal void Activate(Init init)
@@ -85,24 +97,22 @@ public class TPScript : MonoBehaviour
 		else if (Regex.IsMatch(split[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
+			int i;
 
 			if (!_init.isCountingDown)
 				yield return "sendtochaterror The module isn't active right now. This command is unavailable until the display is pressed.";
 
-			else if (split.Length < 2 || split[1].Length == 0)
-				yield return "sendtochaterror There is no sequence provided. Example submission: \"submit RGCK\" submits Red, Green, Cyan and Black.";
+			else if (split.Length < 2)
+				yield return "sendtochaterror There is no sequence provided. Example submission: \"submit tl TR\" submits the top left, then the top right button.";
 
-			else if (split.Length > 2)
-				yield return "sendtochaterror There are too many parameters. Be sure that the button presses aren't separated by a space. Example submission: \"submit RGCK\" submits Red, Green, Cyan and Black.";
+			else if (split.Any(s => s.Length == 0))
+				yield return "sendtochaterror One of the parameters are empty. Make sure that your whitespace is correct. Example submission: \"submit tl TR\" submits the top left, then the top right button.";
 
-			else if (split[1].Length > 6)
-				yield return "sendtochaterror Submissions longer than 6 characters would reset the buttons, which is useless in TwitchPlays.";
-
-			else if (split[1].Any(c => !"KRGBCMYW".Contains(c)))
-				yield return "sendtochaterror One of the button presses provided are invalid. The only valid characters are K, R, G, B, C, M, Y, and W.";
+			else if (split.Skip(1).Any(s => !_posToIndex.TryGetValue(s.ToLower(), out i)))
+				yield return "sendtochaterror One of the button presses provided are invalid. The only valid parameters are TL, TM, TR, ML, MM, MR, BL, and BR";
 
 			else
-				yield return SubmitCommand(split[1]);
+				yield return SubmitCommand(PositionToLetters(split.Skip(1).ToArray()));
 		}
 	}
     
@@ -139,10 +149,18 @@ public class TPScript : MonoBehaviour
             yield return Pho.Number.OnInteract();
             while (_init.isAnimated)
                 yield return true;
-        }
+		}
 
-        // Reset submission, just in case it had any button presses.
-        while (_init.submission != string.Empty)
+		// If not in submission, active it.
+		if (!_init.isInSubmission)
+		{
+			yield return Pho.Number.OnInteract();
+			while (_init.isAnimated)
+				yield return true;
+		}
+
+		// Reset submission, just in case it had any button presses.
+		while (_init.submission != string.Empty)
         {
             Pho.Buttons[Rnd.Range(0, Pho.Buttons.Length)].OnInteract();
             yield return new WaitForSecondsRealtime(0.2f);
@@ -154,7 +172,7 @@ public class TPScript : MonoBehaviour
 			ButtonType button;
 
             // Converts the first character to lowercase, making it case-insensitive.
-			Function.charToButton.TryGetValue(s.ToString().ToLowerInvariant()[0], out button);
+			Function.charToButton.TryGetValue(s, out button);
 
             // Gets the index of the button to press.
 			int buttonIndex = Array.IndexOf(_select.buttons, button);
@@ -176,6 +194,20 @@ public class TPScript : MonoBehaviour
 		yield return Pho.Number.OnInteract();
 	}
 
+	private string PositionToLetters(string[] command)
+    {
+		string output = string.Empty;
+		int[] indexes = new int[command.Length];
+
+        for (int i = 0; i < command.Length; i++)
+			indexes[i] = _posToIndex[command[i].ToLower()];
+
+		for (int i = 0; i < indexes.Length; i++)
+			output += _select.buttons[indexes[i]].ToString()[0].ToLower();
+
+		return output;
+    }
+
 	private void ColorOnRelease()
 	{
 		if (Init.vrMode)
@@ -190,6 +222,6 @@ public class TPScript : MonoBehaviour
 			yield break;
 
 		yield return null;
-        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index, _select.buttons).PickRandom());
+        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index, _select.buttons).PickRandom().ToLower());
 	}
 }
