@@ -150,20 +150,27 @@ internal class Select
     }
 
     /// <summary>
-    /// The event handler for releasing the display with VRMode enabled.
+    /// The event handler for releasing the display with VRMode enabled. Shuts off the display.
     /// </summary>
     internal Action ColorRelease()
     {
-        return delegate () { StopSequence(); };
-    }
+        return delegate ()
+        {
+            PressFeedback(_pho.Color.transform, 0.5f);
 
-    /// <summary>
-    /// The event handler for deselecting the display with VRMode disabled.
-    /// </summary>
-    /// <returns>True, as it has markers as their children.</returns>
-    internal KMSelectable.OnCancelHandler ColorCancel()
-    {
-        return delegate () { StopSequence(); return true; };
+            if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
+            {
+                Function.PlaySound("invalidButton", _pho);
+                return;
+            }
+
+            Function.PlaySound("screenRelease", _pho);
+            _init.isSelected = false;
+
+            // Sets the entire 7x7 grid to be completely black.
+            for (int i = 0; i < _pho.Tiles.Length; i++)
+                _pho.Tiles[i].material.color = Color.black;
+        };
     }
 
     /// <summary>
@@ -181,27 +188,6 @@ internal class Select
         // Sets all of the buttons to be the appropriate color, based on the new shuffled array.
         for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
             _pho.ButtonRenderers[i].material.color = Function.GetColor(buttons[i]);
-    }
-
-    /// <summary>
-    /// Shuts off the display.
-    /// </summary>
-    internal void StopSequence()
-    {
-        PressFeedback(_pho.Color.transform, 0.5f);
-
-        if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
-        {
-            Function.PlaySound("invalidButton", _pho);
-            return;
-        }
-
-        Function.PlaySound("screenRelease", _pho);
-        _init.isSelected = false;
-
-        // Sets the entire 7x7 grid to be completely black.
-        for (int i = 0; i < _pho.Tiles.Length; i++)
-            _pho.Tiles[i].material.color = Color.black;
     }
 
     /// <summary>

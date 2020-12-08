@@ -26,15 +26,15 @@
             background-color: #fff;
             border: 0px solid transparent;
         }
+        
+        .fade-severe {
+            background: linear-gradient(0.25turn, #000, #888, #fff);
+            background-clip: initial;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         @media screen {
-            .fade-severe {
-                background: linear-gradient(0.25turn, #000, #888, #fff);
-                background-clip: initial;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-
             .fade {
                 background: linear-gradient(0.25turn, #000, #444, #888);
                 background-clip: initial;
@@ -57,7 +57,7 @@
                 <p class="flavour-text"><span class="fade-severe">H-hey, this might sound weird but I think the flavor text is ceasing to exist...</span></p>
                 
                 <p class="appendix-reference fade-severe">
-					See Appendix CCC for button color identification reference.<br>
+					See Appendix C² for color identification reference.<br>
                 </p>
                     
                 <div class="fade">
@@ -71,6 +71,9 @@
                     </ul>
                 
                     <h2>L Cipher (defuser-heavy):</h2>
+				</div>
+					<p class="flavour-text"><span class="fade-severe">For reference, there are exactly 25 L 2x2 patterns in the top right part of this manual.</span></p>
+                <div class="fade">
 
                     <h3>The blank display:</h3>
                     <ul>
@@ -79,7 +82,7 @@
                         <ul>
                             <li>A marker can be placed in any intersection of this grid.</li>
                         </ul>
-                        <li>The number of L-shaped patterns visible must be noted down.</li>
+                        <li>The number of 2x2 L-shaped patterns visible must be noted down.</li>
                         <ul>
                             <li>This must be done quickly as the colors slowly fade to gray.</li>
                         </ul>
@@ -202,6 +205,9 @@
             <div class="page-content">
                 <div class="fade">
                     <h2>Color Cycle Cipher (expert-heavy):</h2>
+                </div>
+					<p class="flavour-text"><span class="fade-severe">Fun fact! You can spell out any color word by repeatedly mashing its color on the respective button!</span></p>
+                <div class="fade">
 
                     <h3>Obtaining the word to submit.</h3>
                     <ul>
@@ -268,8 +274,9 @@
                         <li>Remove all instances of the <strong>impostor</strong> letter such that an English word is made without rearranging the letters. This is the word to submit.</li><br>
                     </ul>
                     <h3>Submitting the word:</h3>
+                </div>
                     <ul>
-                        <table align="right">
+                        <table align="right" class="fade">
                             <tr>
                                 <th>Timer<br>State</th>
                                 <th>+</th>
@@ -311,9 +318,12 @@
                                 <td style="font-size:66%">256</td>
                             </tr>
                         </table>
+                    </ul>
+                <div class="fade">
+                    <ul>
                         <li>Press the 7-segment display. Colored buttons are shown.</li>
                         <ul>
-                            <li>Refer to Appendix CCC to identify the buttons.</li><br>
+                            <li>Refer to Appendix C² to identify the buttons.</li><br>
                             <li>In the event of a misclick, <strong>sacrifice a fourth of your remaining time</strong> and clear your input by pressing the buttons until they all flash white.</li>
                         </ul>
                         <li>Obtain an offset by adding the numbers that apply on the table.</li><br>
@@ -322,7 +332,7 @@
                             <li>For each color, subtract the offset with the length of the color's word until the offset is less than it.</li><br>
                             <li>Place the pointer on the color's (offset + 1)th character.</li>
                         </ul>
-                        <li>Submit the first character by pressing any color that has its pointer match the first character.</li>
+                        <li>Submit the first character of the obtained word by pressing any color that has its pointer match that first character.</li>
                     </ul>
                     <ul>
                         <li>Move every color's pointer one character to the right (wrapping if necessary) and submit the next character from the received word.</li><br>
@@ -335,15 +345,19 @@
         <div class="page page-bg-03">
             <div class="page-header">
                 <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
-                <span class="page-header-section-title">Appendix CCC</span>
+                <span class="page-header-section-title">Appendix C²</span>
             </div>
             <div class="page-content">
-                <h2 class="fade">Appendix CCC: Button Color Identification Reference</h2>
+                <h2 class="fade">Appendix C²: Color Identification Reference</h2>
+                <p class="flavour-text"><span class="fade-severe">There will be only have 5 seconds to identify every single color, good luck!</span></p>
                 <ul class="fade">
                     <li>With cruel mode enabled, labels on the buttons are not shown.</li><br>
                     <li>The 8 buttons are any of the following colors:</li>
                 </ul>
-                <table>
+                <table class="fade">
+                    <tr>
+                        <th colspan="7" style="background-color:#000000"></th>
+                    </tr>
                     <tr>
                         <th>Word</th>
                         <th style="background-color:#000000"></th>
@@ -456,6 +470,9 @@
                         <td>Zen</td>
                         <td style="background-color:#D2D0AE"></td>
                         <td>Z</td>
+                    </tr>
+                    <tr>
+                        <th colspan="7" style="background-color:#000000"></th>
                     </tr>
                 </table>
             </div>

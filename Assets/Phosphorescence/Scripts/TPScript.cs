@@ -213,7 +213,7 @@ public class TPScript : MonoBehaviour
 		if (Init.vrMode)
 			Pho.Color.OnInteractEnded();
 		else
-			Pho.Color.OnCancel();
+			Pho.Color.OnDefocus();
 	}
 
 	private IEnumerator TwitchHandleForcedSolve()

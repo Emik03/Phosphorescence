@@ -29,7 +29,7 @@ internal class Init
     internal ButtonType[] buttonPresses;
 
     /// <summary>
-    /// If true, disables incompatible markers and initalizes bottom display's event as OnInteractEnded instead of OnCancel.
+    /// If true, disables incompatible markers and initalizes bottom display's event as OnInteractEnded instead of OnDefocus.
     /// </summary>
     internal static bool vrMode;
 
@@ -61,10 +61,10 @@ internal class Init
         pho.Color.OnInteract += select.ColorPress();
         Function.OnInteractArray(pho.Buttons, select.ButtonPress);
 
-        // Initalize markers, and use OnCancel.
+        // Initalize markers, and use OnDefocus.
         if (!vrMode)
         {
-            pho.Color.OnCancel += select.ColorCancel();
+            pho.Color.OnDefocus += select.ColorRelease();
             Function.OnInteractArray(pho.Markers, select.MarkerPress);
         }
 
