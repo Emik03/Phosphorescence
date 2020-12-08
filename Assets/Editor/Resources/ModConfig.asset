@@ -14,7 +14,21 @@ MonoBehaviour:
   id: Phosphorescence
   title: Phosphorescence
   author: Emik
-  description: 
+  description: '"Taking L''s has never been this difficult... or easy, depending on
+    your definition."
+
+
+    moduleId: Phosphorescence
+
+
+    HTML Manual: https://ktane.timwi.de/HTML/Phosphorescence.html
+
+
+    Twitch Plays is supported.
+
+
+    Do you want to file a bug report? Do you have a question about the module? Contact
+    me on Discord: @Emik#0001'
   version: 1
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: b954a1b004abe7c4a81650b69c46f006, type: 3}
