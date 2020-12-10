@@ -43,17 +43,14 @@ internal class Select
                 return false;
             }
 
-            // Is it inactive? Make it active.
-            if (!_init.isCountingDown)
+            
+            if (!_init.isCountingDown) // Is it inactive? Make it active.
                 _pho.StartCoroutine(animate.Run());
-            // Is it not animating? Continue.
-            else if (!_init.isAnimated)
-                // Is it in submission? Submit and validate.
-                if (_init.isInSubmission)
+            else if (!_init.isAnimated) // Is it not animating? Continue.
+                if (_init.isInSubmission) // Is it in submission? Submit and validate.
                     _pho.StartCoroutine(animate.ExitSubmit());
-                // Otherwise, enter submission.
-                else
-                    EnterSubmit();
+                else // Otherwise, enter submission.
+                    EnterSubmit(); 
             return false;
         };
     }
@@ -134,6 +131,7 @@ internal class Select
     {
         return delegate ()
         {
+            ColorRelease();
             PressFeedback(_pho.Color.transform, 2);
 
             if (_init.isSolved || _init.isAnimated || _init.isInSubmission)

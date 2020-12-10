@@ -161,10 +161,10 @@ internal static class Function
     }
 
     /// <summary>
-    /// Trims all 
+    /// Trims all strings in a jagged string array.
     /// </summary>
-    /// <param name="source"></param>
-    /// <returns></returns>
+    /// <param name="source">The jagged array to trim all strings with.</param>
+    /// <returns>The same instance of the jagged array, all of them trimmed.</returns>
     internal static string[][] TrimAll(string[][] source)
     {
         for (int i = 0; i < source.Length; i++)
@@ -198,10 +198,15 @@ internal static class Function
         return new Color32(byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber), (byte)(hex.Length < 8 ? 255 : byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber)));
     }
 
-    internal static void GenerateColoredButtons(string solution, out ButtonType[] buttons)
+    /// <summary>
+    /// Generates button colors based on the solution, then generating random colors.
+    /// </summary>
+    /// <param name="mustInclude">The buttons that must be included, which is one of the answers.</param>
+    /// <param name="buttons">The buttons it can choose from. NOTE: This creates a new instance.</param>
+    internal static void GenerateColoredButtons(string mustInclude, out ButtonType[] buttons)
     {
         List<ButtonType> output = new List<ButtonType>();
-        foreach (char c in solution)
+        foreach (char c in mustInclude)
             output.Add(charToButton[c.ToLower()]);
         while (output.Count < 8)
         {
@@ -303,6 +308,13 @@ internal static class Function
         return count;
     }
 
+    /// <summary>
+    /// Determines if the current index is looking at an L pattern.
+    /// </summary>
+    /// <param name="colors">The boolean array, treated as 2-dimensional.</param>
+    /// <param name="i">The first dimension's index.</param>
+    /// <param name="j">The second dimension's index.</param>
+    /// <returns>True if [i, j] of colors (treated as 2-dimensions) is an L pattern.</returns>
     internal static bool IsLPattern(bool[] colors, int i, int j)
     {
         const int s = 7;

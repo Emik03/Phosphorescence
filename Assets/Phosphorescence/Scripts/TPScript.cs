@@ -18,6 +18,9 @@ public class TPScript : MonoBehaviour
 	private Render _render;
 	private Select _select;
 
+	/// <summary>
+	/// Converts user input to the corresponding index of the buttons array, which is in reading order.
+	/// </summary>
 	private static readonly Dictionary<string, int> _posToIndex = new Dictionary<string, int>
 	{
 		{ "tl", 0 },

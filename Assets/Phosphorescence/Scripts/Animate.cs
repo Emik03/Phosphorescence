@@ -51,7 +51,7 @@ internal class Animate
         string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
 
         // I really don't want answers to contain this anywhere.
-        if (answers.Contains("NIG"))
+        if (answers.Contains("FAG") || answers.Contains("NIG"))
             goto restart;
 
         // Log the current answer.

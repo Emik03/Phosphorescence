@@ -37,6 +37,9 @@ internal static class Words
     /// </summary>
     internal static string[][] ValidWords { get; private set; }
 
+    /// <summary>
+    /// Contains the same value as ValidWords, with only unique entries, truncated to a 1-dimensional array.
+    /// </summary>
     internal static string[] ValidDistinctWords { get; private set; }
 
     /// <summary>
@@ -351,6 +354,11 @@ internal static class Words
 		return distinct ? Flatten(ValidWords).Distinct().Count() : Flatten(ValidWords).Count();
     }
 
+    /// <summary>
+    /// Flattens a jagged array.
+    /// </summary>
+    /// <param name="array">The array to flatten.</param>
+    /// <returns>Returns a flattened 1-dimensional array of the jagged 2-dimensional array provided.</returns>
     private static string[] Flatten(string[][] array)
     {
         return array.SelectMany(a => a).ToArray();
