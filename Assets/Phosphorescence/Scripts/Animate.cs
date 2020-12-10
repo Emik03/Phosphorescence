@@ -32,10 +32,10 @@ internal class Animate
     internal IEnumerator Run()
     {
         _init.isAnimated = true;
-        _pho.StartCoroutine(Words.Init(_pho.WordList, _pho));
+        if (Init.isFirstToGenerate)
+            _pho.StartCoroutine(Words.Init(_pho.WordList, _pho));
         _pho.StartCoroutine(Startup());
-        yield return new WaitWhile(() => Words.ValidWords == null);
-        yield return new WaitWhile(() => _init.isAnimated);
+        yield return new WaitWhile(() => Words.ValidWords == null || _init.isAnimated);
 
         _init.isCountingDown = true;
 

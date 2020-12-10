@@ -55,6 +55,8 @@ internal static class Words
     /// </summary>
     internal static IEnumerator Init(TextAsset words, PhosphorescenceScript pho)
     {
+        global::Init.isFirstToGenerate = false;
+
         // If the method has run at least once, we do not need to initalize this again.
         if (ValidWords != null)
             yield break;

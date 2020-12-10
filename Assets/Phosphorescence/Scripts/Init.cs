@@ -28,11 +28,7 @@ internal class Init
     /// </summary>
     internal ButtonType[] buttonPresses;
 
-    /// <summary>
-    /// If true, disables incompatible markers and initalizes bottom display's event as OnInteractEnded instead of OnDefocus.
-    /// </summary>
-    internal static bool vrMode;
-
+    internal static bool vrMode, isFirstToGenerate = true;
     internal bool isSolved, isCountingDown, isInSubmission, isSelected, isAnimated;
     internal static int moduleIdCounter, streamDelay;
     internal int moduleId, index;

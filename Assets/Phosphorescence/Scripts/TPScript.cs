@@ -18,6 +18,8 @@ public class TPScript : MonoBehaviour
 	private Render _render;
 	private Select _select;
 
+	private bool _isSubmitRunning;
+
 	/// <summary>
 	/// Converts user input to the corresponding index of the buttons array, which is in reading order.
 	/// </summary>
@@ -115,7 +117,11 @@ public class TPScript : MonoBehaviour
 				yield return "sendtochaterror One of the button presses provided are invalid. The only valid parameters are TL, TM, TR, ML, MM, MR, BL, and BR";
 
 			else
-				yield return SubmitCommand(PositionToLetters(split.Skip(1).ToArray()));
+			{
+				StartCoroutine(SubmitCommand(PositionToLetters(split.Skip(1).ToArray())));
+				while (_isSubmitRunning)
+					yield return true;
+			}
 		}
 	}
     
@@ -142,16 +148,18 @@ public class TPScript : MonoBehaviour
 	}
 
 	private IEnumerator SubmitCommand(string submit)
-    {
-        while (_init.isAnimated)
-            yield return true;
+	{
+		_isSubmitRunning = true;
 
-        // If inactive, active it.
-        if (!_init.isCountingDown)
+		while (_init.isAnimated)
+            yield return true;
+		
+		// If inactive, active it.
+		if (!_init.isCountingDown)
         {
             yield return Pho.Number.OnInteract();
             while (_init.isAnimated)
-                yield return true;
+				yield return true;
 		}
 
 		// If not in submission, active it.
@@ -166,7 +174,7 @@ public class TPScript : MonoBehaviour
 		while (_init.submission != string.Empty)
         {
             Pho.Buttons[Rnd.Range(0, Pho.Buttons.Length)].OnInteract();
-            yield return new WaitForSecondsRealtime(0.2f);
+			yield return new WaitForSecondsRealtime(0.2f);
         }
 
         // For each character in the user's submission.
@@ -189,12 +197,13 @@ public class TPScript : MonoBehaviour
 
             // Presses the corresponding button.
             yield return Pho.Buttons[buttonIndex].OnInteract();
-            yield return new WaitForSecondsRealtime(0.2f);
-        }
+			yield return new WaitForSecondsRealtime(0.2f);
+		}
 
 		while (_init.isAnimated)
 			yield return true;
 		yield return Pho.Number.OnInteract();
+		_isSubmitRunning = false;
 	}
 
 	private string PositionToLetters(string[] command)
@@ -224,7 +233,26 @@ public class TPScript : MonoBehaviour
 		if (_init == null)
 			yield break;
 
-		yield return null;
-        yield return SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index, _select.buttons).PickRandom().ToLower());
+		yield return new WaitForSecondsRealtime((float)(Init.moduleIdCounter - Pho.init.moduleId) / 5);
+
+		// If inactive, active it.
+		if (!_init.isCountingDown)
+		{
+			yield return Pho.Number.OnInteract();
+			while (_init.isAnimated || !_init.isCountingDown)
+				yield return true;
+		}
+
+		// If not in submission, active it.
+		if (!_init.isInSubmission)
+		{
+			yield return Pho.Number.OnInteract();
+			while (_init.isAnimated || !_init.isInSubmission)
+				yield return true;
+		}
+
+		StartCoroutine(SubmitCommand(Words.GetAllAnswers(_init.solution, _init.index, _select.buttons).PickRandom().ToLower()));
+		while (_isSubmitRunning)
+			yield return true;
 	}
 }
