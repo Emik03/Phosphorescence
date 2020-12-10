@@ -233,8 +233,6 @@ public class TPScript : MonoBehaviour
 		if (_init == null)
 			yield break;
 
-		yield return new WaitForSecondsRealtime((float)(Init.moduleIdCounter - Pho.init.moduleId) / 5);
-
 		// If inactive, active it.
 		if (!_init.isCountingDown)
 		{
