@@ -1,14 +1,12 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <title>Phosphorescence — Keep Talking and Nobody Explodes Module</title>
     <meta name="viewport" content="initial-scale=1">
+    <title>Phosphorescence — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
-    <link rel="stylesheet" type="text/css" href="css/font.css">
     <script src="js/ktane-utils.js"></script>
     <style>
         .black {
@@ -28,26 +26,47 @@
         }
         
         .fade-flavor {
-            background: linear-gradient(0.25turn, #000, #888, #fff);
-            background-clip: initial;
+            background-color: #000;
+            background-image: linear-gradient(0.25turn, #000, #888, #fff);
+            background-size: 100%;
+            background-clip: text;
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -moz-background-clip: text;
+            -webkit-text-fill-color: transparent; 
+            -moz-text-fill-color: transparent;
         }
 
         @media screen {
             .fade-severe {
-                background: linear-gradient(0.25turn, #000, #888, #fff);
-                background-clip: initial;
+                background-color: #000;
+                background-image: linear-gradient(0.25turn, #000, #888, #fff);
+                background-size: 100%;
+                background-clip: text;
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                -moz-background-clip: text;
+                -webkit-text-fill-color: transparent; 
+                -moz-text-fill-color: transparent;
             }
             
             .fade {
-                background: linear-gradient(0.25turn, #000, #444, #888);
-                background-clip: initial;
+                background-color: #000;
+                background-image: linear-gradient(0.25turn, #000, #444, #888);
+                background-size: 100%;
+                background-clip: text;
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                -moz-background-clip: text;
+                -webkit-text-fill-color: transparent; 
+                -moz-text-fill-color: transparent;
             }
+        }
+        
+        li {
+            margin: 10px 0;
+        }
+        
+        .float-table {
+            float: right;
+            margin-left: 0.2em;
         }
     </style>
 </head>
@@ -62,40 +81,36 @@
                 <img src="img/Component/Phosphorescence.svg" class="diagram">
                 <h2 class="fade">On the Subject of Phosphorescence</h2>
                 <p class="flavour-text"><span class="fade-flavor">H-hey, this might sound weird but I think the flavor text is ceasing to exist...</span></p>
-                
                 <p class="appendix-reference fade-severe">
-					See Appendix C² for color identification reference.<br>
+                    See Appendix C² for color identification reference.<br>
                 </p>
-                    
                 <div class="fade">
                     <ul>
-                        <li>The module has a blank display, and a 7-segment display.</li><br>
-                        <li>A timer starts when the 7-segment display is pressed.</li>
+                        <li>The module has a blank display, and a 7-segment display.</li>
+                        <li>A timer starts when the 7-segment display is pressed.
                         <ul>
                             <li>Extra time is given per solved module.</li>
-                        </ul>
-                        <li><strong><u>WARNING</u>: The timer cannot be deactivated, and will strike when run out.</strong></li><br>
-                    </ul>
-                
-                    <h2>L Cipher (defuser-heavy):</h2>
-				</div>
-					<p class="flavour-text"><span class="fade-severe">For reference, there are exactly 25 L 2x2 patterns in the top right part of this manual.</span></p>
-                <div class="fade">
-
-                    <h3>The blank display:</h3>
-                    <ul>
-                        <li>First, select it, which should display a gray screen, and deselect it.</li><br>
-                        <li>From here, select the screen again to reveal a 7x7 grid in 2 colors.</li>
-                        <ul>
-                            <li>A marker can be placed in any intersection of this grid.</li>
-                        </ul>
-                        <li>The number of 2x2 L-shaped patterns visible must be noted down.</li>
-                        <ul>
-                            <li>This must be done quickly as the colors slowly fade to gray.</li>
-                        </ul>
+                        </ul></li>
+                        <li><strong><u>WARNING</u>: The timer cannot be deactivated, and will strike when run out.</strong></li>
                     </ul>
                 </div>
-                <table align="right">
+                <h2>L Cipher (defuser-heavy):</h2>
+                    <p class="flavour-text"><span class="fade-severe">For reference, there are exactly 25 L 2x2 patterns in the top right part of this manual.</span></p>
+                <h3>The blank display:</h3>
+                <div class="fade">
+                    <ul>
+                        <li>First, select it, which should display a gray screen, and deselect it.</li>
+                        <li>From here, select the screen again to reveal a 7x7 grid in 2 colors.
+                        <ul>
+                            <li>A marker can be placed in any intersection of this grid.</li>
+                        </ul></li>
+                        <li>The number of 2x2 L-shaped patterns visible must be noted down.
+                        <ul>
+                            <li>This must be done quickly as the colors slowly fade to gray.</li>
+                        </ul></li>
+                    </ul>
+                </div>
+                <table class="float-table">
                     <tr>
                         <th colspan="4" class="black">Patterns to seek out for:</th>
                     </tr>
@@ -186,23 +201,25 @@
                 </table>
                 <div class="fade">
                     <ul>
-                        <li>Repeat this process 7 more times in order to obtain 8 numbers.</li><br>
-                        <li>A shuffle is performed when the sequence wraps, indicated by a gray screen.</li>
+                        <li>Repeat this process 7 more times in order to obtain 8 numbers.</li>
+                        <li>A shuffle is performed when the sequence wraps, indicated by a gray screen.
                         <ul>
                             <li>Some letters may change, but the answer remains the same.</li>
-                        </ul>
-                    </ul>
-                    <h3>The 7-segment display:</h3>
-                    <ul>
-                        <li>This display will flash darker/brighter depending on its last digit.</li>
-                        <ul>
-                            <li>Record all 10 states of the display. (on/off)</li><br>
-                            <li>The display is <strong>always off</strong> when the last digit is a 9.</li>
-                        </ul>
+                        </ul></li>
                     </ul>
                 </div>
-            <div class="page-footer relative-footer fade">Page 1 of 2</div>
-        </div>
+                <h3>The 7-segment display:</h3>    
+                <div class="fade">
+                    <ul>
+                        <li>This display will flash darker/brighter depending on its last digit.
+                        <ul>
+                            <li>Record all 10 states of the display. (on/off)</li>
+                            <li>The display is <strong>always off</strong> when the last digit is a 9.</li>
+                        </ul></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="page-footer relative-footer fade">Page 1 of 3</div>
         </div>
         <div class="page page-bg-02">
             <div class="page-header">
@@ -210,15 +227,12 @@
                 <span class="page-header-section-title">Phosphorescence</span>
             </div>
             <div class="page-content">
-                <div class="fade">
-                    <h2>Color Cycle Cipher (expert-heavy):</h2>
-                </div>
-					<p class="flavour-text"><span class="fade-severe">Fun fact! You can spell out any color word by repeatedly mashing its color on the respective button!</span></p>
-                <div class="fade">
-
-                    <h3>Obtaining the word to submit.</h3>
+                <h2>Color Cycle Cipher (expert-heavy):</h2>
+                <p class="flavour-text"><span class="fade-severe">Fun fact! You can spell out any color word by repeatedly mashing its color on the respective button!</span></p>
+                <h3>Obtaining the word to submit.</h3>
+                <div>
                     <ul>
-                        <li>Convert the 8 numbers obtained earlier with this table:</li>
+                        <li>Convert the 8 numbers obtained earlier with this table:
                         <table>
                             <tr style="font-size:57%">
                                 <td>6</td>
@@ -276,14 +290,14 @@
                                 <td>y</td>
                                 <td>z</td>
                             </tr>
-                        </table><br>
-                        <li>One of these letters will be an <strong>impostor</strong>.</li><br>
-                        <li>Remove all instances of the <strong>impostor</strong> letter such that an English word is made without rearranging the letters. This is the word to submit.</li><br>
+                        </table></li>
+                        <li>One of these letters will be an <strong>impostor</strong>.</li>
+                        <li>Remove all instances of the <strong>impostor</strong> letter such that an English word is made without rearranging the letters. This is the word to submit.</li>
                     </ul>
-                    <h3>Submitting the word:</h3>
                 </div>
-                    <ul>
-                        <table align="right" class="fade">
+                <h3>Submitting the word:</h3>
+                    <div>
+                        <table class="float-table">
                             <tr>
                                 <th>Timer<br>State</th>
                                 <th>+</th>
@@ -325,29 +339,29 @@
                                 <td style="font-size:66%">256</td>
                             </tr>
                         </table>
-                    </ul>
+                    </div>
                 <div class="fade">
                     <ul>
-                        <li>Press the 7-segment display. Colored buttons are shown.</li>
+                        <li>Press the 7-segment display. Colored buttons are shown.
                         <ul>
-                            <li>Refer to Appendix C² to identify the buttons.</li><br>
+                            <li>Refer to Appendix C² to identify the buttons.</li>
                             <li>In the event of a misclick, <strong>sacrifice a fourth of your remaining time</strong> and clear your input by pressing the buttons until they all flash white.</li>
-                        </ul>
-                        <li>Obtain an offset by adding the numbers that apply on the table.</li><br>
-                        <li>Place a pointer on each of the 8 colors:</li>
+                        </ul></li>
+                        <li>Obtain an offset by adding the numbers that apply on the table.</li>
+                        <li>Place a pointer on each of the 8 colors:
                         <ul>
-                            <li>For each color, subtract the offset with the length of the color's word until the offset is less than it.</li><br>
+                            <li>For each color, subtract the offset with the length of the color's word until the offset is less than it.</li>
                             <li>Place the pointer on the color's (offset + 1)th character.</li>
-                        </ul>
+                        </ul></li>
                         <li>Submit the first character of the obtained word by pressing any color that has its pointer match that first character.</li>
                     </ul>
                     <ul>
-                        <li>Move every color's pointer one character to the right (wrapping if necessary) and submit the next character from the received word.</li><br>
+                        <li>Move every color's pointer one character to the right (wrapping if necessary) and submit the next character from the received word.</li>
                         <li>Repeat this process until the entire word is submitted. Press the 7-segment display to submit, and upon a correct submission, will solve the module.</li>
                     </ul>
                 </div>
             </div>
-            <div class="page-footer relative-footer fade">Page 2 of 2</div>
+            <div class="page-footer relative-footer fade">Page 2 of 3</div>
         </div>
         <div class="page page-bg-03">
             <div class="page-header">
@@ -355,13 +369,13 @@
                 <span class="page-header-section-title">Appendix C²</span>
             </div>
             <div class="page-content">
-                <h2 class="fade">Appendix C²: Color Identification Reference</h2>
-                <p class="flavour-text"><span class="fade-severe">There will be only have 5 seconds to identify every single color, good luck!</span></p>
+                <h2>Appendix C²: Color Identification Reference</h2>
+                <p class="flavour-text"><span class="fade-severe">There will only be 5 seconds to identify all 8 colors, good luck!</span></p>
                 <ul class="fade">
-                    <li>With cruel mode enabled, labels on the buttons are not shown.</li><br>
+                    <li>With cruel mode enabled, labels on the buttons are not shown.</li>
                     <li>The 8 buttons are any of the following colors:</li>
                 </ul>
-                <table class="fade">
+                <table>
                     <tr>
                         <th colspan="7" style="background-color:#000000"></th>
                     </tr>
