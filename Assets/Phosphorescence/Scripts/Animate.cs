@@ -31,9 +31,12 @@ internal class Animate
 
     internal IEnumerator Run()
     {
+        _init.isStriking = false;
         _init.isAnimated = true;
+
         if (Init.isFirstToGenerate)
             _pho.StartCoroutine(Words.Init(_pho.WordList, _pho));
+
         _pho.StartCoroutine(Startup());
         yield return new WaitWhile(() => Words.ValidWords == null || _init.isAnimated);
 

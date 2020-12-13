@@ -29,7 +29,7 @@ internal class Init
     internal ButtonType[] buttonPresses;
 
     internal static bool vrMode, isFirstToGenerate = true;
-    internal bool isSolved, isCountingDown, isInSubmission, isSelected, isAnimated;
+    internal bool isSolved, isCountingDown, isInSubmission, isSelected, isAnimated, isStriking;
     internal static int moduleIdCounter, streamDelay;
     internal int moduleId, index;
     internal string solution, submission;
@@ -104,6 +104,10 @@ internal class Init
     /// </summary>
     private IEnumerator Strike()
     {
+        if (isStriking)
+            yield break;
+
+        isStriking = true;
         isAnimated = true;
         
         Debug.LogFormat("[Phosphorescence #{0}]: Submission \"{1}\" did not match the expected \"{2}\"!", moduleId, submission, solution);
