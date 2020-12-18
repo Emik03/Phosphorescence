@@ -14,16 +14,19 @@ namespace PhosphorescenceExtensions
         /// <summary>
         /// When disabled, there will be no indicators/letters for colors.
         /// </summary>
+        [JsonProperty("CruelMode")]
         public bool CruelMode { get; set; }
 
         /// <summary>
         /// Uses the appropriate event triggers for what this is set on.
         /// </summary>
+        [JsonProperty("VRMode")]
         public bool VRMode { get; set; }
 
         /// <summary>
         /// How much additional time needs to be given due to stream delay?
         /// </summary>
+        [JsonProperty("StreamDelay")]
         public int StreamDelay { get; set; }
 
         /// <summary>
@@ -41,7 +44,7 @@ namespace PhosphorescenceExtensions
             try
             {
                 // Try loading settings.
-                ModSettingsJSON settings = JsonConvert.DeserializeObject<ModSettingsJSON>(pho.ModSettings.Settings);
+                var settings = JsonConvert.DeserializeObject<ModSettingsJSON>(pho.ModSettings.Settings);
 
                 // Do settings exist?
                 if (settings != null)

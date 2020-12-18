@@ -53,7 +53,7 @@ internal static class Words
     /// <summary>
     /// Sets the valid words property to all words that are valid.
     /// </summary>
-    internal static IEnumerator Init(TextAsset words, PhosphorescenceScript pho)
+    internal static IEnumerator Init(this TextAsset words)
     {
         global::Init.isFirstToGenerate = false;
 
@@ -61,11 +61,11 @@ internal static class Words
         if (ValidWords != null)
             yield break;
 
-        ValidChars = GetAllChars(Enum.GetNames(typeof(ButtonType))); 
+        ValidChars = Enum.GetNames(typeof(ButtonType)).GetAllChars(); 
         ValidAlphabet = ValidChars.Join("").Distinct().OrderBy(c => c).Join("");
         Colors = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().IterateColors();
 
-        yield return StartWordsThread(words);
+        yield return words.StartThread();
 
         if (Application.isEditor)
         {
@@ -74,17 +74,16 @@ internal static class Words
         }
     }
 
-    internal static IEnumerator StartWordsThread(TextAsset file)
+    internal static IEnumerator StartThread(this TextAsset file)
     {
         _isThreadReady = false;
         string[] words = file.text.Split('\n');
 
-        var thread = new Thread(() => GetAllWords(words, ValidChars));
+        var thread = new Thread(() => words.GetAllWords(ValidChars));
         thread.Start();
         yield return new WaitUntil(() => _isThreadReady);
 
-        ValidDistinctWords = Flatten(_resultsFromThread).Distinct().ToArray();
-
+        ValidDistinctWords = _resultsFromThread.Flatten().Distinct().ToArray();
         ValidWords = _resultsFromThread;
     }
 
@@ -94,7 +93,7 @@ internal static class Words
     /// <param name="impostor">The impostor letter.</param>
     /// <param name="solution">The current solution.</param>
     /// <returns>True if the impostor character cannot create a valid word.</returns>
-    internal static bool IsValidImpostor(char impostor, string solution)
+    internal static bool IsValidImpostor(this char impostor, string solution)
     {
         if (solution.Select(c => ValidAlphabet.IndexOf(c)).Any(i => Math.Abs(i - ValidAlphabet.IndexOf(impostor)) <= 1))
             return false;
@@ -113,7 +112,7 @@ internal static class Words
     /// <param name="solution">The word to reach to.</param>
     /// <param name="index">The offset index that is used for the colors.</param>
     /// <returns>A string array where every element is a valid answer.</returns>
-    internal static string[] GetAllAnswers(string solution, int index, ButtonType[] buttons)
+    internal static string[] GetAllAnswers(this ButtonType[] buttons, string solution, int index)
     {
         // Initalize list.
         List<string>[] answers = new List<string>[solution.Length];
@@ -149,9 +148,9 @@ internal static class Words
     /// Gets all characters that are valid.
     /// </summary>
     /// <returns>String array of all characters that are valid per index.</returns>
-    internal static string[] GetAllChars(string[] colors)
+    internal static string[] GetAllChars(this string[] colors)
     {
-        string[] output = new string[LeastCommonDenominator(colors.Select(c => c.Length).ToArray())];
+        string[] output = new string[colors.Select(c => c.Length).ToArray().LeastCommonDenominator()];
 
         for (int i = 0; i < output.Length; i++)
             output[i] = colors.Select(s => s[i % s.Length]).Join("").ToLowerInvariant();
@@ -163,16 +162,16 @@ internal static class Words
     /// Gets all words that are valid.
     /// </summary>
     /// <returns>Jagged array of all valid words, indexes correlating with the valid characters array.</returns>
-	internal static void GetAllWords(string[] words, string[] validChars)
+	internal static void GetAllWords(this string[] words, string[] validChars)
     {
         // This is simply the directory of a large word list of strictly nouns.
         string[][] output = new string[ValidChars.Length][];
 
         // Tests for all offsets in _validChars.
         for (int offset = 0; offset < ValidChars.Length; offset++)
-            output[offset] = words.Where(w => IsValidWord(w, offset, validChars)).ToArray();
+            output[offset] = words.Where(w => w.IsValidWord(offset, validChars)).ToArray();
         
-        _resultsFromThread = Function.TrimAll(output);
+        _resultsFromThread = output.TrimAll();
 
         _isThreadReady = true;
     }
@@ -208,7 +207,7 @@ internal static class Words
     /// <param name="line">The string to test.</param>
     /// <param name="offset">The starting index for _validChars</param>
     /// <returns>True if the word is valid for the ValidWords array.</returns>
-	private static bool IsValidWord(string line, int offset, string[] validChars)
+	private static bool IsValidWord(this string line, int offset, string[] validChars)
     {
         // Ensures lack of whitespace and capitalization.
         line = line.Trim();
@@ -231,7 +230,7 @@ internal static class Words
     /// </summary>
     /// <param name="array">The list of numbers to find the least common denominator with.</param>
     /// <returns>Integer of least common denominator in the whole array.</returns>
-    private static long LeastCommonDenominator(int[] array)
+    private static long LeastCommonDenominator(this int[] array)
     {
         int lcm = 1, divisor = 2;
 
@@ -353,7 +352,7 @@ internal static class Words
     /// <returns>The amount of unique entries in ValidWords.</returns>
     private static int GetCount(bool distinct)
     {
-		return distinct ? Flatten(ValidWords).Distinct().Count() : Flatten(ValidWords).Count();
+		return distinct ? ValidWords.Flatten().Distinct().Count() : ValidWords.Flatten().Count();
     }
 
     /// <summary>
@@ -361,7 +360,7 @@ internal static class Words
     /// </summary>
     /// <param name="array">The array to flatten.</param>
     /// <returns>Returns a flattened 1-dimensional array of the jagged 2-dimensional array provided.</returns>
-    private static string[] Flatten(string[][] array)
+    private static string[] Flatten(this string[][] array)
     {
         return array.SelectMany(a => a).ToArray();
     }

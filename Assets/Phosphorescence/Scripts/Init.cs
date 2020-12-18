@@ -50,18 +50,18 @@ internal class Init
         pho.TP.Activate(this);
 
         // Plays voice lines only if it is the last one initiated. Not checking this causes multiple sounds to stack up.
-        pho.Info.OnBombSolved += delegate () { if (moduleId == moduleIdCounter) Function.PlaySound("voice_bombdisarmed", pho); };
-        pho.Info.OnBombExploded += delegate () { if (moduleId == moduleIdCounter) Function.PlaySound("voice_gameover", pho); };
+        pho.Info.OnBombSolved += delegate () { if (moduleId == moduleIdCounter) pho.PlaySound("voice_bombdisarmed"); };
+        pho.Info.OnBombExploded += delegate () { if (moduleId == moduleIdCounter) pho.PlaySound("voice_gameover"); };
 
         pho.Number.OnInteract += select.NumberPress();
         pho.Color.OnInteract += select.ColorPress();
-        Function.OnInteractArray(pho.Buttons, select.ButtonPress);
+        pho.Buttons.OnInteractArray(select.ButtonPress);
 
         // Initalize markers, and use OnDefocus.
         if (!vrMode)
         {
             pho.Color.OnDefocus += select.ColorRelease();
-            Function.OnInteractArray(pho.Markers, select.MarkerPress);
+            pho.Markers.OnInteractArray(select.MarkerPress);
         }
 
         // Otherwise, remove markers and use OnInteractEnded.
@@ -111,21 +111,22 @@ internal class Init
         isAnimated = true;
         
         Debug.LogFormat("[Phosphorescence #{0}]: Submission \"{1}\" did not match the expected \"{2}\"!", moduleId, submission, solution);
-        solution = string.Empty; 
+        solution = string.Empty;
 
-        Function.PlaySound("strike", pho);
+        pho.PlaySound("strike");
 
         // Disable screen.
         render.UpdateDisplay(0);
         isCountingDown = false;
 
         pho.Module.HandleStrike();
+        const ButtonType color = ButtonType.Red;
 
         // Increase in amount of reds.
         for (int i = 0; i <= 25; i++)
         {
             foreach (var tile in pho.Tiles)
-                tile.material.color = Rnd.Range(0, 25) >= i ? Color.black : Function.GetColor(ButtonType.Red);
+                tile.material.color = Rnd.Range(0, 25) >= i ? Color.black : color.GetColor();
 
             yield return new WaitForSecondsRealtime(0.02f);
         }
@@ -134,7 +135,7 @@ internal class Init
         for (int i = 0; i <= 25; i++)
         {
             foreach (var tile in pho.Tiles)
-                tile.material.color = Rnd.Range(0, 25) >= i ? Function.GetColor(ButtonType.Red) : Color.black;
+                tile.material.color = Rnd.Range(0, 25) >= i ? color.GetColor() : Color.black;
 
             yield return new WaitForSecondsRealtime(0.02f);
         }
@@ -149,7 +150,7 @@ internal class Init
     {
         isSolved = true;
         Debug.LogFormat("[Phosphorescence #{0}]: The submisssion was correct, that is all.", moduleId);
-        Function.PlaySound("success", pho);
+        pho.PlaySound("success");
 
         // Removes the texture, since it doesn't matter at this stage.
         foreach (var tile in pho.Tiles)
@@ -167,13 +168,13 @@ internal class Init
         for (int i = 0; i < Enum.GetNames(typeof(ButtonType)).Length; i++)
         {
             foreach (var tile in pho.Tiles)
-                tile.material.color = Function.GetColor((ButtonType)i);
+                tile.material.color = ((ButtonType)i).GetColor();
 
             yield return new WaitForSeconds(0.1f);
         }
 
         // Solves the module.
-        Function.PlaySound("voice_challengecomplete", pho);
+        pho.PlaySound("voice_challengecomplete");
         pho.Module.HandlePass();
         yield return select.animate.PostSolve(pho, displayStates);
     }

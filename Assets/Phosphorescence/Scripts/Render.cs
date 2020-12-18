@@ -35,14 +35,14 @@ internal class Render
     internal IEnumerator Countdown()
     {
         _init.isCountingDown = true;
-        Function.PlaySound("voice_go", _pho);
+        _pho.PlaySound("voice_go");
 
         for (time = currentTime; time >= 1; time--)
         {
             if (!_init.isCountingDown)
                 yield break;
 
-            Function.CountSound(time, _pho, time == currentTime);
+            _pho.PlaySoundFromTime(time, time == currentTime);
             UpdateDisplay(time);
 
             yield return new WaitForSecondsRealtime(1);
@@ -110,7 +110,7 @@ internal class Render
     /// </summary>
     private void NewSequence()
     {
-        Function.PlaySound("reshuffle", _pho);
+        _pho.PlaySound("reshuffle");
 
         // Setting this to negative 1 means that the next button press will display 0, or the first element.
         currentIndex = -1;
@@ -126,7 +126,7 @@ internal class Render
             impostor = alphabet.PickRandom();
             alphabet.RemoveAt(alphabet.IndexOf(impostor));
         }
-        while (!Words.IsValidImpostor(impostor, _init.solution));
+        while (!impostor.IsValidImpostor(_init.solution));
 
         // Randomly append this letter until it reaches the theoretical maximum length.
         while (letters.Length < Words.SequenceLength)
@@ -141,10 +141,9 @@ internal class Render
     private void DisplayCubes()
     {
         for (int i = 0; i < _pho.Tiles.Length; i++)
-            Function.SetIntertwinedColor(renderer: _pho.Tiles[i],
-                                         colorA: _colors[i],
-                                         colorB: Color.gray,
-                                         f: burn = Mathf.Min(burn + _burnSpeed + ((1 - (time / currentTime)) * _burnSpeed), 1));
+            _pho.Tiles[i].SetIntertwinedColor(colorA: _colors[i],
+                                              colorB: Color.gray,
+                                              f: burn = Mathf.Min(burn + _burnSpeed + ((1 - (time / currentTime)) * _burnSpeed), 1));
     }
 
     /// <summary>
@@ -159,9 +158,9 @@ internal class Render
         bool[] booleans = Function.RandomBools(49);
 
         int goal = 6 + Words.ValidAlphabet.IndexOf(letters[currentIndex]);
-        while (Function.GetLCount(booleans) != goal)
+        while (booleans.LCount() != goal)
         {
-            bool needMoreLs = Function.GetLCount(booleans) < goal;
+            bool needMoreLs = booleans.LCount() < goal;
 
             int[] iIndexes = Enumerable.Range(0, 6).ToArray().Shuffle(),
                   jIndexes = Enumerable.Range(0, 6).ToArray().Shuffle();
@@ -170,7 +169,7 @@ internal class Render
             {
                 for (int j = 0; j < jIndexes.Length; j++)
                 {
-                    if (needMoreLs ^ Function.IsLPattern(booleans, iIndexes[i], jIndexes[j]))
+                    if (needMoreLs ^ booleans.IsL(iIndexes[i], jIndexes[j]))
                     {
                         Function.InvertBoolean(ref booleans[((iIndexes[i] + Rnd.Range(0, 1)) * 7) + jIndexes[j] + Rnd.Range(0, 1)]);
                         goto check;

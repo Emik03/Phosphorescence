@@ -39,7 +39,7 @@ internal class Select
 
             if (_init.isSolved || _init.isAnimated)
             {
-                Function.PlaySound("invalidButton", _pho);
+                _pho.PlaySound("invalidButton");
                 return false;
             }
 
@@ -68,7 +68,7 @@ internal class Select
 
             if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission)
             {
-                Function.PlaySound("invalidButton", _pho);
+                _pho.PlaySound("invalidButton");
                 return false;
             }
 
@@ -87,7 +87,7 @@ internal class Select
                 Array.Resize(ref _init.buttonPresses, oldLength + 1);
                 _init.buttonPresses[oldLength] = buttons[btn];
 
-                Function.PlaySound("submit" + _init.submission.Length, _pho);
+                _pho.PlaySound("submit" + _init.submission.Length);
                 _pho.StartCoroutine(animate.PressButton(_pho.ButtonRenderers[btn].transform));
                 return false;
             }
@@ -111,14 +111,14 @@ internal class Select
 
             if (_init.isAnimated || _init.isInSubmission)
             {
-                Function.PlaySound("invalidButton", _pho);
+                _pho.PlaySound("invalidButton");
                 return false;
             }
 
             // Inverts their vertical position, toggling whether they are visible or not. This surprisingly doesn't seem to affect their hitbox.
             _pho.MarkerRenderers[btn].transform.localPosition = new Vector3(_pho.MarkerRenderers[btn].transform.localPosition.x, _pho.MarkerRenderers[btn].transform.localPosition.y * -1, _pho.MarkerRenderers[btn].transform.localPosition.z);
 
-            Function.PlaySound(_pho.MarkerRenderers[btn].transform.localPosition.y > 0 ? "markerOn" : "markerOff", _pho);
+            _pho.PlaySound(_pho.MarkerRenderers[btn].transform.localPosition.y > 0 ? "markerOn" : "markerOff");
             return false;
         };
     }
@@ -136,12 +136,12 @@ internal class Select
 
             if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
             {
-                Function.PlaySound("invalidButton", _pho);
+                _pho.PlaySound("invalidButton");
                 return !Init.vrMode;
             }
 
             ResetMarkers();
-            Function.PlaySound("screenPress", _pho);
+            _pho.PlaySound("screenPress");
             _pho.StartCoroutine(_render.UpdateCubes());
             return !Init.vrMode;
         };
@@ -158,11 +158,11 @@ internal class Select
 
             if (_init.isSolved || _init.isAnimated || _init.isInSubmission)
             {
-                Function.PlaySound("invalidButton", _pho);
+                _pho.PlaySound("invalidButton");
                 return;
             }
 
-            Function.PlaySound("screenRelease", _pho);
+            _pho.PlaySound("screenRelease");
             _init.isSelected = false;
 
             // Sets the entire 7x7 grid to be completely black.
@@ -185,7 +185,7 @@ internal class Select
 
         // Sets all of the buttons to be the appropriate color, based on the new shuffled array.
         for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
-            _pho.ButtonRenderers[i].material.color = Function.GetColor(buttons[i]);
+            _pho.ButtonRenderers[i].material.color = buttons[i].GetColor();
     }
 
     /// <summary>
@@ -197,7 +197,7 @@ internal class Select
         _init.isInSubmission = true;
         _init.buttonPresses = new ButtonType[0];
 
-        Function.PlaySound("startSubmit", _pho);
+        _pho.PlaySound("startSubmit");
         ResetMarkers();
         ShuffleButtons();
 

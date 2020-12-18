@@ -44,10 +44,15 @@ internal static class Function
     };
 
     /// <summary>
+    /// Stores all of the button types in an array.
+    /// </summary>
+    internal static IEnumerable<ButtonType> AllButtonTypes = Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>();
+
+    /// <summary>
     /// Plays a sound.
     /// </summary>
     /// <param name="sound">The name of the sound file.</param>
-    internal static void PlaySound(string sound, PhosphorescenceScript pho)
+    internal static void PlaySound(this PhosphorescenceScript pho, string sound)
     {
         pho.Audio.PlaySoundAtTransform(sound, pho.transform);
     }
@@ -136,15 +141,10 @@ internal static class Function
     /// </summary>
     /// <param name="selectables">The array to create event handlers for.</param>
     /// <param name="method">The method that will be called whenever an event is triggered.</param>
-    internal static void OnInteractArray(KMSelectable[] selectables, Func<int, KMSelectable.OnInteractHandler> method)
+    internal static void OnInteractArray(this KMSelectable[] selectables, Func<int, KMSelectable.OnInteractHandler> method)
     {
         for (int i = 0; i < selectables.Length; i++)
-        {
-            // This might look redundant, but using 'i' always passes in selectable.Length - 1.
-            // This is a workaround, in other words.
-            int j = i;
-            selectables[i].OnInteract += method(j);
-        }
+            selectables[i].OnInteract += method(i);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ internal static class Function
     /// <param name="colorA">The first color, as f approaches 0.</param>
     /// <param name="colorB">The second color, as f approaches 1.</param>
     /// <param name="f">The weighting of color mixing, with 0 being 100% colorA and 1 being 100% colorB.</param>
-    internal static void SetIntertwinedColor(Renderer renderer, Color32 colorA, Color32 colorB, float f = 0.5f)
+    internal static void SetIntertwinedColor(this Renderer renderer, Color32 colorA, Color32 colorB, float f = 0.5f)
     {
         float negF = 1 - f;
         renderer.material.color = new Color32((byte)((colorA.r * negF) + (colorB.r * f)), (byte)((colorA.g * negF) + (colorB.g * f)), (byte)((colorA.b * negF) + (colorB.b * f)), 255);
@@ -165,7 +165,7 @@ internal static class Function
     /// </summary>
     /// <param name="source">The jagged array to trim all strings with.</param>
     /// <returns>The same instance of the jagged array, all of them trimmed.</returns>
-    internal static string[][] TrimAll(string[][] source)
+    internal static string[][] TrimAll(this string[][] source)
     {
         for (int i = 0; i < source.Length; i++)
             for (int j = 0; j < source[i].Length; j++)
@@ -192,7 +192,7 @@ internal static class Function
     /// </summary>
     /// <param name="hex">A string of hexadecimal, which can be formatted as "FFFFFF", "#FFFFFF", or "0xFFFFFF"</param>
     /// <returns>Color converted from hexadecimal string.</returns>
-    internal static Color HexToColor(string hex)
+    internal static Color HexToColor(this string hex)
     {
         hex = hex.Replace("0x", "").Replace("#", "");
         return new Color32(byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber), (byte)(hex.Length < 8 ? 255 : byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber)));
@@ -203,14 +203,14 @@ internal static class Function
     /// </summary>
     /// <param name="mustInclude">The buttons that must be included, which is one of the answers.</param>
     /// <param name="buttons">The buttons it can choose from. NOTE: This creates a new instance.</param>
-    internal static void GenerateColoredButtons(string mustInclude, out ButtonType[] buttons)
+    internal static void GenerateColoredButtons(this string mustInclude, out ButtonType[] buttons)
     {
         List<ButtonType> output = new List<ButtonType>();
         foreach (char c in mustInclude)
             output.Add(charToButton[c.ToLower()]);
         while (output.Count < 8)
         {
-            output.AddRange(Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().OrderBy(x => Rnd.Range(0, 1f)).Take(8 - output.Count).ToArray());
+            output.AddRange(AllButtonTypes.OrderBy(x => Rnd.Range(0, 1f)).Take(8 - output.Count).ToArray());
             output = output.Distinct().ToList();
         }
         buttons = output.ToArray();
@@ -221,7 +221,7 @@ internal static class Function
     /// </summary>
     /// <param name="buttonType">The type of ButtonType to use.</param>
     /// <returns>The color equivalent of ButtonType.</returns>
-    internal static Color GetColor(ButtonType buttonType)
+    internal static Color GetColor(this ButtonType buttonType)
     {
         switch (buttonType)
         {
@@ -260,30 +260,30 @@ internal static class Function
     /// </summary>
     /// <param name="time">The current time remaining in seconds.</param>
     /// <param name="exception">An exception that, if true, will not play voice lines.</param>
-    internal static void CountSound(int time, PhosphorescenceScript pho, bool exception)
+    internal static void PlaySoundFromTime(this PhosphorescenceScript pho, int time, bool exception)
     {
         if (exception)
             return;
 
-        PlaySound("timerTick", pho);
+        pho.PlaySound("timerTick");
 
         switch (time)
         {
-            case 1: PlaySound("voice_one", pho); break;
-            case 2: PlaySound("voice_two", pho); break;
-            case 3: PlaySound("voice_three", pho); break;
-            case 4: PlaySound("voice_four", pho); break;
-            case 5: PlaySound("voice_five", pho); break;
-            case 6: PlaySound("voice_six", pho); break;
-            case 7: PlaySound("voice_seven", pho); break;
-            case 8: PlaySound("voice_eight", pho); break;
-            case 9: PlaySound("voice_nine", pho); break;
-            case 30: PlaySound("voice_thirtyseconds", pho); break;
-            case 60: PlaySound("voice_oneminute", pho); break;
-            case 120: PlaySound("voice_twominutes", pho); break;
-            case 180: PlaySound("voice_threeminutes", pho); break;
-            case 240: PlaySound("voice_fourminutes", pho); break;
-            default: if (time % 60 == 0) PlaySound("notableTimeLeft", pho); break;
+            case 1: pho.PlaySound("voice_one"); break;
+            case 2: pho.PlaySound("voice_two"); break;
+            case 3: pho.PlaySound("voice_three"); break;
+            case 4: pho.PlaySound("voice_four"); break;
+            case 5: pho.PlaySound("voice_five"); break;
+            case 6: pho.PlaySound("voice_six"); break;
+            case 7: pho.PlaySound("voice_seven"); break;
+            case 8: pho.PlaySound("voice_eight"); break;
+            case 9: pho.PlaySound("voice_nine"); break;
+            case 30: pho.PlaySound("voice_thirtyseconds"); break;
+            case 60: pho.PlaySound("voice_oneminute"); break;
+            case 120: pho.PlaySound("voice_twominutes"); break;
+            case 180: pho.PlaySound("voice_threeminutes"); break;
+            case 240: pho.PlaySound("voice_fourminutes"); break;
+            default: if (time % 60 == 0) pho.PlaySound("notableTimeLeft"); break;
         }
     }
 
@@ -292,7 +292,7 @@ internal static class Function
     /// </summary>
     /// <param name="colors">The boolean array, which must be of length 49.</param>
     /// <returns>An integer representing the amount of L's found.</returns>
-    internal static int GetLCount(bool[] colors)
+    internal static int LCount(this bool[] colors)
     {
         if (colors.Length != 49)
             throw new IndexOutOfRangeException("Colors is length " + colors.Length);
@@ -302,7 +302,7 @@ internal static class Function
 
         for (int i = 0; i < s - 1; i++)
             for (int j = 0; j < s - 1; j++)
-                if (IsLPattern(colors, i, j))
+                if (colors.IsL(i, j))
                     count++;
 
         return count;
@@ -315,7 +315,7 @@ internal static class Function
     /// <param name="i">The first dimension's index.</param>
     /// <param name="j">The second dimension's index.</param>
     /// <returns>True if [i, j] of colors (treated as 2-dimensions) is an L pattern.</returns>
-    internal static bool IsLPattern(bool[] colors, int i, int j)
+    internal static bool IsL(this bool[] colors, int i, int j)
     {
         const int s = 7;
 

@@ -35,7 +35,7 @@ internal class Animate
         _init.isAnimated = true;
 
         if (Init.isFirstToGenerate)
-            _pho.StartCoroutine(Words.Init(_pho.WordList, _pho));
+            _pho.StartCoroutine(_pho.WordList.Init());
 
         _pho.StartCoroutine(Startup());
         yield return new WaitWhile(() => Words.ValidWords == null || _init.isAnimated);
@@ -50,8 +50,8 @@ internal class Animate
         // Pick any solution from the current index.
         _init.solution = Words.ValidWords[_init.index].PickRandom();
 
-        Function.GenerateColoredButtons(Words.GetAllAnswers(_init.solution, _init.index, Enum.GetValues(typeof(ButtonType)).Cast<ButtonType>().ToArray()).PickRandom(), out _select.buttons);
-        string[] answers = Words.GetAllAnswers(_init.solution, _init.index, _select.buttons);
+        Function.AllButtonTypes.ToArray().GetAllAnswers(_init.solution, _init.index).PickRandom().GenerateColoredButtons(out _select.buttons);
+        string[] answers = _select.buttons.GetAllAnswers(_init.solution, _init.index);
 
         // I really don't want answers to contain this anywhere.
         if (answers.Contains("FAG") || answers.Contains("NIG"))
@@ -70,7 +70,7 @@ internal class Animate
     /// </summary>
     internal IEnumerator Startup()
     {
-        Function.PlaySound("start", _pho);
+        _pho.PlaySound("start");
 
         // This makes the display darker, since it always returns 0 in binary.
         _init.index = 0; 
@@ -134,7 +134,7 @@ internal class Animate
         _init.buttonPresses = new ButtonType[0];
 
         _select.ShuffleButtons();
-        Function.PlaySound("shuffleButtons", _pho);
+        _pho.PlaySound("shuffleButtons");
         _render.time -= _render.time / 4;
 
         // ElasticÍn ease of all buttons being pushed down.
@@ -144,10 +144,9 @@ internal class Animate
             for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
             {
                 _pho.ButtonRenderers[i].transform.localPosition = new Vector3(_pho.ButtonRenderers[i].transform.localPosition.x, -2 * Function.ElasticIn(k), _pho.ButtonRenderers[i].transform.localPosition.z);
-                Function.SetIntertwinedColor(renderer: _pho.ButtonRenderers[i],
-                                             colorA: Function.GetColor(_select.buttons[i]),
-                                             colorB: Color.white,
-                                             f: Math.Max((k - 0.75f) * 4, 0));
+                _pho.ButtonRenderers[i].SetIntertwinedColor(colorA: _select.buttons[i].GetColor(),
+                                                            colorB: Color.white,
+                                                            f: Math.Max((k - 0.75f) * 4, 0));
             }
 
             k -= 0.0078125f;
@@ -176,10 +175,9 @@ internal class Animate
         while (k <= 1 && !_isPushingButton)
         {
             for (int i = 0; i < _pho.ButtonRenderers.Length; i++)
-                Function.SetIntertwinedColor(renderer: _pho.ButtonRenderers[i],
-                                             colorA: Function.GetColor(_select.buttons[i]),
-                                             colorB: Color.black,
-                                             f: k);
+                _pho.ButtonRenderers[i].SetIntertwinedColor(colorA: _select.buttons[i].GetColor(),
+                                                            colorB: Color.black,
+                                                            f: k);
 
             k += 0.001953125f;
             yield return new WaitForSecondsRealtime(0.01f);
@@ -227,7 +225,7 @@ internal class Animate
         _init.isAnimated = true;
         _init.isCountingDown = false;
 
-        Function.PlaySound("endSubmit", _pho);
+        _pho.PlaySound("endSubmit");
 
         // ElasticOut ease of buttons going down.
         float k = 0;
@@ -270,7 +268,7 @@ internal class Animate
             // For each corner.
             for (int i = 0; i < 4; i++)
             {
-                Color32 color = Function.GetColor((ButtonType)Rnd.Range(0, Enum.GetNames(typeof(ButtonType)).Length));
+                Color32 color = ((ButtonType)Rnd.Range(0, Enum.GetNames(typeof(ButtonType)).Length)).GetColor();
                 // 20 is an arbitrary number that works well here.
                 for (int j = 0; j < 20; j++)
                 {
