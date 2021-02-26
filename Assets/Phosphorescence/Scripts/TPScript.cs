@@ -250,7 +250,8 @@ public class TPScript : MonoBehaviour
 		}
 
 		StartCoroutine(SubmitCommand(_select.buttons.GetAllAnswers(_init.solution, _init.index).PickRandom().ToLower()));
-		while (_isSubmitRunning)
+		
+		while (_isSubmitRunning || !_init.isSolved)
 			yield return true;
 	}
 }
