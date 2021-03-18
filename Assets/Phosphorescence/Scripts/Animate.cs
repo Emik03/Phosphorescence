@@ -73,7 +73,10 @@ internal class Animate
         _pho.PlaySound("start");
 
         // This makes the display darker, since it always returns 0 in binary.
-        _init.index = 0; 
+        _init.index = 0;
+
+        // These variables have to reset so that the first press is always a reshuffle.
+        _render.currentIndex = int.MaxValue - 1;
 
         float solved = _pho.Info.GetSolvedModuleNames().Count,
               solvable = _pho.Info.GetSolvableModuleNames().Count,
