@@ -50,8 +50,8 @@ internal class Init
         pho.TP.Activate(this);
 
         // Plays voice lines only if it is the last one initiated. Not checking this causes multiple sounds to stack up.
-        pho.Info.OnBombSolved += delegate () { if (moduleId == moduleIdCounter) pho.PlaySound("voice_bombdisarmed"); };
-        pho.Info.OnBombExploded += delegate () { if (moduleId == moduleIdCounter) pho.PlaySound("voice_gameover"); };
+        pho.Info.OnBombSolved += () => { if (moduleId == moduleIdCounter) pho.PlaySound("voice_bombdisarmed"); };
+        pho.Info.OnBombExploded += () => { if (moduleId == moduleIdCounter) pho.PlaySound("voice_gameover"); };
 
         pho.Number.OnInteract += select.NumberPress();
         pho.Color.OnInteract += select.ColorPress();
@@ -60,7 +60,7 @@ internal class Init
         // Initalize markers, and use OnDefocus.
         if (!vrMode)
         {
-            pho.Color.OnDefocus += select.ColorRelease();
+            pho.Color.OnCancel += () => { select.ColorRelease().Invoke(); return true; };
             pho.Markers.OnInteractArray(select.MarkerPress);
         }
 

@@ -66,7 +66,7 @@ internal class Select
         {
             PressFeedback(_pho.Number.transform);
 
-            if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission)
+            if (_init.isSolved || !_init.isCountingDown || !_init.isInSubmission || _init.isAnimated)
             {
                 _pho.PlaySound("invalidButton");
                 return false;
@@ -115,10 +115,12 @@ internal class Select
                 return false;
             }
 
-            // Inverts their vertical position, toggling whether they are visible or not. This surprisingly doesn't seem to affect their hitbox.
-            _pho.MarkerRenderers[btn].transform.localPosition = new Vector3(_pho.MarkerRenderers[btn].transform.localPosition.x, _pho.MarkerRenderers[btn].transform.localPosition.y * -1, _pho.MarkerRenderers[btn].transform.localPosition.z);
+            bool isNowInvisible = _pho.MarkerRenderers[btn].transform.localScale.x != 0;
 
-            _pho.PlaySound(_pho.MarkerRenderers[btn].transform.localPosition.y > 0 ? "markerOn" : "markerOff");
+            // Inverts their scale, toggling whether they are visible or not.
+            _pho.MarkerRenderers[btn].transform.localScale = isNowInvisible ? new Vector3(0, 0, 0) : new Vector3(0.5f, 1, 0.5f);
+
+            _pho.PlaySound(isNowInvisible ? "markerOff" : "markerOn");
             return false;
         };
     }
@@ -193,8 +195,8 @@ internal class Select
     /// </summary>
     private void EnterSubmit()
     {
-        _init.submission = string.Empty;
         _init.isInSubmission = true;
+        _init.submission = string.Empty;
         _init.buttonPresses = new ButtonType[0];
 
         _pho.PlaySound("startSubmit");
@@ -210,7 +212,7 @@ internal class Select
     private void ResetMarkers()
     {
         foreach (var renderer in _pho.MarkerRenderers)
-            renderer.transform.localPosition = new Vector3(renderer.transform.localPosition.x, -0.5f, renderer.transform.localPosition.z);
+            renderer.transform.localScale = new Vector3(0, 0, 0);
     }
 
     /// <summary>
