@@ -199,6 +199,8 @@ internal class Select
         _init.submission = string.Empty;
         _init.buttonPresses = new ButtonType[0];
 
+        _pho.ButtonGroupRenderer.localScale = new Vector3(0.038f, 0.01f, 0.038f);
+
         _pho.PlaySound("startSubmit");
         ResetMarkers();
         ShuffleButtons();

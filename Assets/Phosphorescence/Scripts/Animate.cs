@@ -63,6 +63,9 @@ internal class Animate
         Debug.LogFormat("[Phosphorescence #{0}]: All possible answers ({1}) are: {2}.", _init.moduleId, answers.Length, answers.Join(", "));
 
         _pho.StartCoroutine(_render.Countdown());
+
+        // This makes sure that the user doesn't accidentally press the buttons in the background as they use the markers.
+        _pho.ButtonGroupRenderer.localScale = new Vector3(0, 0, 0);
     }
 
     /// <summary>
@@ -258,6 +261,8 @@ internal class Animate
         _init.isAnimated = false;
         _init.isInSubmission = false;
         _init.isSelected = false;
+
+        _pho.ButtonGroupRenderer.localScale = new Vector3(0, 0, 0);
     }
 
     /// <summary>

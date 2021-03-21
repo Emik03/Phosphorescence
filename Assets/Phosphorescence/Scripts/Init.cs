@@ -60,7 +60,7 @@ internal class Init
         // Initalize markers, and use OnDefocus.
         if (!vrMode)
         {
-            pho.Color.OnCancel += () => { select.ColorRelease().Invoke(); return true; };
+            pho.Color.OnDefocus += select.ColorRelease();
             pho.Markers.OnInteractArray(select.MarkerPress);
         }
 
